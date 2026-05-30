@@ -1,0 +1,24 @@
+# Netlify deployment configuration for Criterio.
+# Connect this repository in the Netlify UI (or `netlify init`) and these
+# settings are picked up automatically — no manual build config needed.
+
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "20"
+
+# Single-page app: every route falls back to index.html.
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# Security headers (sane defaults for a static client-only app).
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    X-Frame-Options = "DENY"
+    Referrer-Policy = "strict-origin-when-cross-origin"

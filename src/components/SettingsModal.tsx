@@ -1,0 +1,80 @@
+import { useStore } from '../state/store';
+import { formatSpanishDate } from '../lib/dates';
+import { Modal } from './Modal';
+import { FolderIcon } from './icons';
+
+export function SettingsModal({ open, onClose }: { open: boolean; onClose: () => void }) {
+  const {
+    fsSupported,
+    exportDirName,
+    chooseExportDir,
+    clearExportDir,
+    issues,
+    isImported,
+    removeIssue,
+  } = useStore();
+
+  if (!open) return null;
+
+  const importedIssues = issues.filter((i) => isImported(i.date));
+
+  return (
+    <Modal title="Ajustes" onClose={onClose}>
+      <section className="settings-block">
+        <h3>Carpeta de exportación</h3>
+        {fsSupported ? (
+          <>
+            <p className="modal-desc">
+              Elige una carpeta una vez y cada descarga se guardará ahí con la fecha (
+              <code>criterio-AAAA-MM-DD.html</code>), como la «Export location» de una app nativa.
+            </p>
+            <div className="modal-row">
+              <button className="btn btn-primary" onClick={() => void chooseExportDir()}>
+                {exportDirName ? 'Cambiar carpeta' : 'Elegir carpeta'}
+              </button>
+              {exportDirName && (
+                <button className="btn btn-ghost" onClick={() => void clearExportDir()}>
+                  Quitar
+                </button>
+              )}
+            </div>
+            <p className="settings-status">
+              {exportDirName ? (
+                <span className="folder-pill">
+                  <FolderIcon size={15} />
+                  Carpeta actual: <strong>{exportDirName}</strong>
+                </span>
+              ) : (
+                <>Sin carpeta fija — las descargas irán a tu carpeta de Descargas.</>
+              )}
+            </p>
+          </>
+        ) : (
+          <p className="modal-desc">
+            Tu navegador no permite elegir carpeta de descarga (es el caso de Safari). Las descargas
+            irán a la carpeta <strong>Descargas</strong> con nombre fechado. Para fijar una carpeta,
+            usa Chrome, Edge, Brave o Arc.
+          </p>
+        )}
+      </section>
+
+      <section className="settings-block">
+        <h3>Ediciones importadas</h3>
+        {importedIssues.length === 0 ? (
+          <p className="modal-desc">Aún no has importado ninguna edición.</p>
+        ) : (
+          <ul className="settings-list">
+            {importedIssues.map((issue) => (
+              <li key={issue.date}>
+                <span>{formatSpanishDate(issue.date)}</span>
+                <button className="link-danger" onClick={() => removeIssue(issue.date)}>
+                  Eliminar
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+    </Modal>
+  );
+}

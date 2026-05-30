@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lectura Inteligente — 29 May 2026</title>
+<style>
+:root { color-scheme: light; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: Georgia, 'Times New Roman', serif; background: #f9f8f6; color: #1a1a1a; transition: background 0.4s, color 0.4s; }
+body.reading { background: #f3ede0; color: #2c2316; }
+body.reading nav { display: none; }
+body.reading .section { max-width: 640px; }
+body.reading .synth-body { font-size: 21px; line-height: 1.95; }
+body.reading .synth-body p { margin-bottom: 32px; }
+
+nav {
+  background: #fff;
+  border-bottom: 1px solid #e0ddd8;
+  padding: 0 20px;
+  display: flex;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  flex-wrap: wrap;
+}
+nav button {
+  background: none;
+  border: none;
+  border-bottom: 3px solid transparent;
+  padding: 16px 18px;
+  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: #666;
+  cursor: pointer;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  transition: color 0.2s, border-color 0.2s;
+}
+nav button:hover { color: #1a3a5c; }
+nav button.active { color: #1a3a5c; border-bottom-color: #1a3a5c; }
+nav button.dl-btn { margin-left: auto; opacity: 0.65; font-size: 11px; padding: 16px 12px; letter-spacing: 0.08em; }
+nav button.dl-btn:hover { opacity: 1; }
+
+.section { display: none; max-width: 720px; margin: 0 auto; padding: 40px 24px 100px; }
+.section.active { display: block; }
+
+.synth-meta { font-family: -apple-system, sans-serif; font-size: 12px; color: #999; text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 18px; }
+.synth-title { font-size: 26px; font-weight: 700; color: #1a1a1a; margin-bottom: 28px; line-height: 1.3; }
+.synth-body { font-size: 17px; line-height: 1.82; color: #2a2a2a; }
+.synth-body p { margin-bottom: 22px; }
+
+.resume-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+@media (max-width: 640px) { .resume-grid { grid-template-columns: 1fr; } }
+.resume-card {
+  background: #fff;
+  border: 1px solid #e8e5e0;
+  border-radius: 10px;
+  padding: 20px 20px 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+.resume-num { font-family: -apple-system, sans-serif; font-size: 11px; color: #bbb; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 5px; }
+.resume-title { font-size: 13px; font-weight: 700; color: #1a3a5c; margin-bottom: 10px; line-height: 1.4; font-family: -apple-system, sans-serif; }
+.resume-text { font-size: 13px; line-height: 1.74; color: #333; }
+
+.accordion-item { border-bottom: 1px solid #e0ddd8; }
+.accordion-btn {
+  width: 100%; background: none; border: none; text-align: left;
+  padding: 18px 4px; cursor: pointer; display: flex; align-items: center; justify-content: space-between;
+  font-family: -apple-system, sans-serif; font-size: 14px; font-weight: 600; color: #1a1a1a;
+  transition: color 0.2s; gap: 12px;
+}
+.accordion-btn:hover { color: #1a3a5c; }
+.accordion-arrow { font-size: 10px; color: #aaa; transition: transform 0.2s; flex-shrink: 0; }
+.accordion-btn.open .accordion-arrow { transform: rotate(90deg); }
+.accordion-content { display: none; padding: 0 4px 20px; font-size: 14px; line-height: 1.75; color: #444; }
+.accordion-content.open { display: block; }
+
+.debate-progress-label { font-family: -apple-system, sans-serif; font-size: 12px; color: #888; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.08em; }
+.progress-dots { display: flex; gap: 6px; margin-bottom: 28px; }
+.dot { width: 10px; height: 10px; border-radius: 50%; background: #ddd; transition: background 0.3s; }
+.dot.done { background: #2a7a4a; }
+.dot.current { background: #1a3a5c; }
+
+.question-text { font-size: 18px; font-weight: 700; line-height: 1.5; margin-bottom: 22px; color: #1a1a1a; }
+.option-btn {
+  display: block; width: 100%; text-align: left;
+  background: #fff; border: 1.5px solid #ddd; border-radius: 8px;
+  padding: 13px 16px; margin-bottom: 10px;
+  font-family: -apple-system, sans-serif; font-size: 14px; color: #1a1a1a;
+  cursor: pointer; transition: border-color 0.15s, background 0.15s;
+  line-height: 1.5;
+}
+.option-btn:hover:not(:disabled) { border-color: #1a3a5c; background: #f0f4f8; }
+.option-btn.selected { border-color: #1a3a5c; background: #edf2f8; font-weight: 600; }
+.option-btn.correct-opt { border-color: #2a7a4a !important; background: #e8f5ee !important; color: #2a7a4a; font-weight: 700; }
+.option-btn.wrong-opt { border-color: #c0392b !important; background: #fdf0ee !important; color: #c0392b; font-weight: 700; }
+.option-btn:disabled { cursor: default; }
+
+.correction-box {
+  margin-top: 20px; border-radius: 10px; padding: 18px 22px;
+  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 14px; line-height: 1.65;
+  display: none; opacity: 0; transition: opacity 0.3s;
+}
+.correction-box.visible { display: block; }
+.correction-box.faded-in { opacity: 1; }
+.correction-box.correct-ans { background: #f0faf4; border: 1.5px solid #2a7a4a; }
+.correction-box.wrong-ans { background: #fdf0ee; border: 1.5px solid #c0392b; }
+.correction-verdict { font-size: 16px; font-weight: 800; margin-bottom: 10px; }
+.correction-verdict.ok { color: #2a7a4a; }
+.correction-verdict.bad { color: #c0392b; }
+.correction-label { font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 8px; color: #666; }
+.correction-text { color: #333; font-size: 14px; line-height: 1.7; }
+.chat-hint { margin-top: 12px; padding-top: 10px; border-top: 1px solid rgba(0,0,0,0.07); font-size: 12px; color: #888; font-style: italic; }
+
+.debate-actions { margin-top: 18px; display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+.submit-btn {
+  background: #1a3a5c; color: #fff; border: none; border-radius: 8px;
+  padding: 12px 24px; font-family: -apple-system, sans-serif; font-size: 14px; font-weight: 600;
+  cursor: pointer; transition: background 0.2s;
+}
+.submit-btn:hover:not(:disabled) { background: #234f78; }
+.submit-btn:disabled { background: #bbb; cursor: default; }
+.next-btn {
+  background: #f9f8f6; color: #1a3a5c; border: 1.5px solid #1a3a5c; border-radius: 8px;
+  padding: 11px 22px; font-family: -apple-system, sans-serif; font-size: 14px; font-weight: 600;
+  cursor: pointer;
+  display: none; opacity: 0; transition: opacity 0.4s;
+}
+.next-btn:hover { background: #edf2f8; }
+.next-btn.visible { display: inline-block; }
+.next-btn.faded-in { opacity: 1; }
+
+.debate-complete { text-align: center; padding: 60px 20px; }
+.debate-complete h2 { font-size: 26px; margin-bottom: 14px; }
+.debate-complete p { color: #666; font-family: -apple-system, sans-serif; font-size: 16px; }
+
+#read-fab {
+  position: fixed; bottom: 28px; right: 24px; z-index: 999;
+  display: flex; align-items: center; gap: 8px;
+  background: #1a3a5c; color: #fff; border: none; border-radius: 50px;
+  padding: 12px 20px 12px 16px;
+  font-family: -apple-system, sans-serif; font-size: 13px; font-weight: 700;
+  cursor: pointer; box-shadow: 0 4px 16px rgba(0,0,0,0.18);
+  transition: background 0.2s, transform 0.15s;
+}
+#read-fab:hover { background: #234f78; transform: translateY(-2px); }
+#read-fab.active { background: #7c5c2e; }
+#tts-bar {
+  display: none; position: fixed; bottom: 80px; right: 24px; z-index: 998;
+  background: #2c2316; border-radius: 12px; padding: 10px 14px;
+  gap: 10px; align-items: center; box-shadow: 0 4px 16px rgba(0,0,0,0.22);
+}
+#tts-bar.visible { display: flex; }
+#tts-bar button { background: none; border: none; color: #f3ede0; font-size: 18px; cursor: pointer; padding: 4px; border-radius: 6px; }
+#tts-bar button:hover { background: rgba(255,255,255,0.12); }
+.tts-label { font-family: -apple-system, sans-serif; font-size: 11px; color: #b09a7a; }
+</style>
+</head>
+<body>
+<nav>
+  <button class="active" onclick="show('sintesis')">Síntesis</button>
+  <button onclick="show('resumenes')">Resúmenes</button>
+  <button onclick="show('articulos')">Artículos</button>
+  <button onclick="show('debate')">Debate</button>
+  <button class="dl-btn" onclick="downloadHTML()">⬇ Descargar</button>
+</nav>
+
+<!-- SÍNTESIS -->
+<div class="section active" id="sec-sintesis">
+  <div class="synth-meta">Análisis de 15 artículos · 29 de mayo de 2026</div>
+  <div class="synth-title">La IA como infraestructura productiva: la semana en que la tecnología pasó de promesa a sistema de producción</div>
+  <div class="synth-body">
+    <p>El hilo que atraviesa este lote no es la inteligencia artificial como tecnología —eso lleva años en el centro— sino como infraestructura económica real: el momento en que las capacidades técnicas se convierten en costes, márgenes, modelos de negocio y reconfiguración del trabajo humano. Anthropic libera Opus 4.8 como una mejora «modesta pero tangible» y lo dice sin pudor; OpenAI y Thrive demuestran que agentes de código pueden procesar 7.000 declaraciones fiscales con un 97% de precisión; y un análisis muestra que el consumo real de Claude y Codex vía API puede superar los 2.000 dólares mensuales para un solo usuario avanzado. La IA ya no es una demo: es factura.</p>
+    <p>Alrededor de ese eje central orbitan tres tensiones que merecen atención. La primera es la brecha entre producción y juicio: dos artículos distintos —uno sobre la «orchestration tax» y otro sobre ingenieros que escriben menos código— coinciden en que el verdadero cuello de botella no es generar outputs sino revisarlos, decidir sobre ellos y responsabilizarse de lo que se pone en producción. La IA reduce el coste de producir, no el de equivocarse, y la atención humana sigue siendo el recurso serial que limita el rendimiento del sistema completo. Un tercer texto completa el triángulo: en la era de la IA, el juicio —la capacidad de detectar lo falso, lo superficial, lo insuficiente— es la habilidad más escasa y la que menos se puede delegar.</p>
+    <p>La segunda tensión es geopolítica e industrial: Nvidia apuesta hasta 150.000 millones anuales en Taiwán pese al discurso de Trump sobre reindustrialización americana, SpaceX rebaja su objetivo de valoración IPO de más de 2 billones a al menos 1,8 billones, y Blue Origin pierde su cohete New Glenn en una explosión en tierra en Florida. El hardware de la IA sigue dependiendo de cadenas de suministro que no están en EE. UU., y las asimetrías entre competidores —SpaceX y Blue Origin, Nvidia y sus rivales— se revelan brutales en cuanto se mira con datos.</p>
+    <p>La tercera tensión mezcla biología y hardware físico: Biohub presenta ESMFold2, capaz de diseñar en días binders contra dianas cancerígenas con tasas de acierto del 36–88%, mientras Tesla empieza a construir la fábrica de su robot humanoide Optimus en Giga Texas con el objetivo declarado de 10 millones de unidades anuales. Son apuestas a décadas, pero la velocidad a la que lo «imposible» se convierte en «en construcción» comprime los plazos que cualquier análisis estratégico debería considerar. Waymo y Apple añaden capas: más robotaxis más baratos, y un iPhone que detecta su propio robo físico.</p>
+    <p>Fuera del hilo principal pero con peso propio: Dollar Tree bate expectativas gracias a márgenes en expansión y un ticket medio que sube un 4,5%, sin que el tráfico acompañe. Y un emprendedor celebra que la IA le permite por fin sobre-ingenierizar sus proyectos personales sin culpa, invirtiendo la lógica del MVP austero que dominó el sector durante veinte años. La implicación más importante del conjunto es esta: el trabajo de los próximos años no será adoptar IA, sino diseñar los sistemas —de revisión, de juicio, de producción, de organización— dentro de los cuales la IA sea realmente útil. Quien resuelva esa arquitectura primero tiene la ventaja.</p>
+  </div>
+</div>
+
+<!-- RESÚMENES -->
+<div class="section" id="sec-resumenes">
+  <div class="resume-grid" id="resumeGrid"></div>
+</div>
+
+<!-- ARTÍCULOS -->
+<div class="section" id="sec-articulos">
+  <div id="accordionContainer"></div>
+</div>
+
+<!-- DEBATE -->
+<div class="section" id="sec-debate">
+  <div class="debate-progress-label" id="debateProgress">Pregunta 1 de 8</div>
+  <div class="progress-dots" id="progressDots"></div>
+  <div id="questionContainer"></div>
+</div>
+
+<div id="tts-bar">
+  <button id="tts-play" onclick="ttsPlay()">▶</button>
+  <button id="tts-pause" onclick="ttsPause()" style="display:none">⏸</button>
+  <button onclick="ttsStop()">⏹</button>
+  <span class="tts-label" id="tts-label">Leer en voz alta</span>
+</div>
+<button id="read-fab" onclick="toggleReading()">
+  <span style="font-size:17px">📖</span>
+  <span id="fab-label">Modo lectura</span>
+</button>
+
+<script>
+const resumes = [
+  { num:"01", title:"Claude Opus 4.8: mejora honesta en honestidad", text:"Anthropic lanzó el 28 de mayo de 2026 Claude Opus 4.8 como una mejora «modesta pero tangible» sobre su predecesor, con el dato más llamativo en el frente de la honestidad: el modelo es unas cuatro veces menos propenso que Opus 4.7 a dejar pasar sin comentar fallos en el código que él mismo escribe, y obtuvo la menor tasa de respuestas incorrectas entre seis modelos evaluados, principalmente absteniéndose cuando no está seguro. El precio se mantiene en 5 dólares por millón de tokens de entrada y 25 por millón de salida, con ventana de contexto de un millón de tokens. Las novedades técnicas más relevantes son los mensajes de sistema a mitad de conversación —que permiten actualizar instrucciones sin rehacer el prompt completo, reduciendo costes en bucles agénticos— y la reducción del mínimo cacheable de 4.096 a 1.024 tokens. En un sector que rutinariamente exagera sus avances, describir un lanzamiento como «modesto» es en sí mismo una señal de posicionamiento estratégico sobre veracidad." },
+  { num:"02", title:"Waymo Ojai: más barato, más robusto, con recall incluido", text:"Waymo ha abierto viajes en sus nuevos robotaxis Ojai a pasajeros seleccionados en San Francisco, Los Ángeles y Phoenix, con expansión prevista a San Diego, Las Vegas y Denver en verano de 2026. El vehículo, fabricado por Geely y basado en la sexta generación del sistema Waymo Driver, es significativamente más barato de producir que sus predecesores Jaguar I-PACE gracias a menos cámaras y sensores, usa chips propios, mejora el lidar para lluvia y nieve, e incluye puertas automáticas y volante desmontable. De una flota total de casi 4.000 vehículos, ya circulan 100 Ojai, y la compañía espera llegar a miles antes de fin de año. El objetivo es alcanzar un millón de viajes semanales, tras acumular más de 20 millones totales. La expansión llega con claroscuros: una retirada voluntaria de unos 3.800 vehículos por fallos ante carreteras inundadas y la pausa temporal en autopistas revelan que la madurez operativa sigue siendo un trabajo en curso." },
+  { num:"03", title:"La atención como cuello de botella: el impuesto a la orquestación", text:"Lanzar veinte agentes de IA en paralelo no multiplica la productividad si la revisión, coordinación y toma de decisiones siguen siendo humanas y seriales. Ese es el argumento central: siguiendo la analogía con la Ley de Amdahl —o con el GIL de Python—, el rendimiento total de un sistema de agentes queda limitado por la parte que no puede paralelizarse, que en desarrollo de software es el juicio: entender la arquitectura, validar cambios y tomar buenas decisiones. Intentar compensar trabajando más solo produce cambios de contexto, cansancio, revisiones superficiales, deuda técnica y pérdida del modelo mental del sistema. La propuesta es diseñar la atención como recurso escaso: ajustar el número de agentes a la capacidad real de revisión, separar tareas aisladas de las que requieren juicio profundo, exigir evidencias automáticas y reservar las mejores horas para pensar. La conclusión invierte la narrativa habitual: la limitación del desarrollo agéntico no está en la IA, sino en la atención humana que no se puede clonar." },
+  { num:"04", title:"Polymarket y el límite del anonimato on-chain", text:"Michele Spagnuolo, ingeniero de Google, fue acusado por fiscales federales de ganar más de un millón de dólares apostando con información privilegiada en Polymarket, una plataforma cripto de apuestas predictivas, usando la cuenta «AlphaRaccoon». El caso ilustra cómo el anonimato on-chain tiene un límite práctico: aunque Spagnuolo usó servicios de privacidad cripto para ocultar sus fondos, una retirada previa de 149.980 dólares que acabó en una cuenta bancaria abierta con su identificación italiana fue suficiente para que el FBI lo identificara. Paradójicamente, fue un tuit de Haeju Jeong con seis millones de visualizaciones el que señaló públicamente la cuenta seis meses antes de la acusación formal, demostrando que observadores aficionados pueden rastrear patrones sospechosos en blockchain antes que las autoridades. El caso se enmarca en un patrón más amplio que incluye a un soldado de fuerzas especiales acusado de ganar más de 400.000 dólares con apuestas vinculadas a Venezuela. La lección: en mercados predictivos, la información privilegiada es tentadora, pero el registro inmutable de blockchain convierte cada transacción en evidencia potencial." },
+  { num:"05", title:"El fin del MVP austero: bienvenidos a la sobre-ingeniería", text:"Durante décadas, la norma en startups fue el MVP más delgado posible: el tiempo de ingeniería era el recurso más caro y no había justificación para pulir lo que no era crítico. Ese equilibrio se ha roto. El autor describe cómo usa Claude y Codex para sobre-ingenierizar con satisfacción sus proyectos personales —un changelog dinámico, un feeling-o-meter, un MCP que genera posts automáticos— con cientos de ideas que antes nunca habrían salido de una lista de pendientes. La tesis es que cuando iterar, probar, descartar y pulir se vuelve mucho más barato, construir el producto con la visión más ambiciosa o más opinionada deja de ser un lujo. Las implicaciones son dobles: el software mediocre se vuelve menos tolerable porque ya no tiene excusa de coste, y la pregunta que define el trabajo pasa de «qué podemos permitirnos construir» a «qué queremos construir». Es un cambio de restricción que redefine la relación entre creatividad técnica y recursos disponibles." },
+  { num:"06", title:"SpaceX rebaja objetivo IPO; Blue Origin pierde New Glenn en tierra", text:"SpaceX ha reducido su objetivo de valoración para su salida a bolsa de más de 2 billones de dólares a al menos 1,8 billones, tras conversaciones con asesores e inversores, en una operación que los analistas presentan como un indicador clave del alcance real del boom de la IA vinculado a la empresa de Elon Musk. Al mismo tiempo, Blue Origin sufrió un revés significativo cuando su cohete New Glenn explotó en una prueba en tierra en Florida, complicando tanto su estrategia de competir con SpaceX como los planes de Amazon para desplegar la constelación de satélites Kuiper. En paralelo, los futuros de EE. UU. se mantuvieron estables a la espera de un posible acuerdo de paz entre Washington e Irán, mientras el Brent apuntaba a su mayor caída mensual desde 2020 por el optimismo en torno al estrecho de Ormuz. Los tres elementos juntos componen un mapa de incertidumbre que conecta la economía espacial con la geopolítica energética." },
+  { num:"07", title:"ESMFold2: diseño de fármacos en días, no en años", text:"Biohub anunció el 27 de mayo de 2026 un modelo abierto de biología de proteínas que combina tres piezas: ESMC, entrenado con aproximadamente 2.800 millones de secuencias proteicas de todo el árbol de la vida; ESMFold2, que convierte representaciones en estructuras 3D con precisión de vanguardia; y ESM Atlas, que permite explorar 6.800 millones de secuencias y 1.100 millones de estructuras predichas. La promesa más tangible es la velocidad: ESMFold2 diseñó en días binders contra cinco proteínas clave en cáncer e inmunología (EGFR, PDGFRβ, PD-L1, CTLA-4 y CD45), con tasas de acierto de entre el 36% y el 88% en minibinders y entre el 15% y el 29% en formatos similares a anticuerpos, todos validados en laboratorio. El modelo es abierto, lo que significa que la comunidad científica puede construir sobre él sin pagar licencias. Si la validación clínica posterior confirma los resultados computacionales, el cuello de botella del descubrimiento farmacéutico se desplazaría desde la búsqueda inicial de candidatos hasta las fases de ensayo." },
+  { num:"08", title:"Tax AI: agentes que se auto-mejoran con juicio humano", text:"Thrive Holdings y OpenAI desarrollaron Tax AI para automatizar declaraciones fiscales en una red de más de 30 firmas contables, usando Codex no solo como asistente de programación sino como motor de mejora continua a partir de datos reales. El sistema procesó 7.000 declaraciones en la temporada piloto, ahorró alrededor de un tercio del tiempo, aumentó el rendimiento cerca de un 50% y alcanzó hasta un 97% de precisión en borradores; en seis semanas pasó de que solo una cuarta parte de las declaraciones alcanzaran el 75% de campos correctos a que lo hiciera el 86%. La clave arquitectónica es la combinación de tres elementos: feedback experto de profesionales, trazas completas de producción que muestran desde documentos fuente hasta correcciones finales, y evaluaciones específicas que convierten errores repetidos en tareas acotadas para Codex. La conclusión es que los agentes no mejoran solos de forma mágica: mejoran dentro de sistemas diseñados para capturar juicio humano, validar cambios con rigor y cerrar el ciclo entre producción, evaluación e ingeniería." },
+  { num:"09", title:"El product-market fit real de la IA: agentes empresariales", text:"El verdadero product-market fit de Anthropic y OpenAI no está en los chatbots de consumo sino en los agentes de programación y trabajo empresarial —Claude Code y Codex—, capaces de generar uso intensivo de tokens y justificar precios muchas veces superiores a los planes de consumidor. El autor lo cuantifica con sus propios datos: sus planes de 100 dólares al mes equivalen a un consumo real de 1.199,79 dólares en Claude y 980,37 dólares en Codex vía API en 30 días. Desde abril de 2026, las empresas pasan a pagar prácticamente precios API. La tesis es que el segmento empresarial de más de 200 dólares mensuales por empleado puede acercar antes a los laboratorios a cubrir sus costes de infraestructura, como ilustra el acuerdo de Anthropic para pagar 1.250 millones de dólares al mes por capacidad de cómputo hasta 2029. Las quejas de Uber por agotar su presupuesto de IA o la cancelación de licencias Claude Code en Microsoft se interpretan no como fracasos sino como prueba de demanda real: el producto duele en precio pero se sigue comprando." },
+  { num:"10", title:"Nvidia apuesta $150B anuales en Taiwán, no en EE. UU.", text:"Pese al discurso de Trump sobre reindustrialización americana en semiconductores, Jensen Huang anunció una inversión de hasta 150.000 millones de dólares anuales en Taiwán para consolidarlo como epicentro de chips, empaquetado avanzado, sistemas y supercomputación de IA, con una nueva sede prevista para 2030. La razón es estructural: aunque Nvidia ha comprometido hasta 500.000 millones en infraestructura estadounidense, sigue dependiendo críticamente del ecosistema taiwanés —TSMC, Foxconn, Wistron, Quanta y tecnologías de empaquetado aún no disponibles en EE. UU.— para responder a la demanda explosiva de centros de datos y agentes de IA. La estrategia revela una doble jugada: compromisos públicos con Washington para evitar aranceles, y prioridad real hacia donde está la capacidad de producción. Las restricciones a China, además, pueden haber acelerado el desarrollo de Huawei como alternativa, lo que complicaría a largo plazo la posición de Nvidia. El corazón técnico de la IA sigue siendo Taiwán, independientemente de los discursos geopolíticos." },
+  { num:"11", title:"Dollar Tree: márgenes fuertes compensan caída de tráfico", text:"Dollar Tree superó las expectativas del primer trimestre con un beneficio ajustado por acción de 1,74 dólares frente a 1,55 estimados, ventas netas de 4.970 millones y crecimiento de ventas comparables del 3,5%, impulsado principalmente por la expansión del margen bruto en 120 puntos básicos gracias a menores costes de transporte, mejores precios iniciales y reducción de mermas. La compañía elevó su previsión anual de BPA ajustado a entre 6,70 y 7,10 dólares, con un punto medio de 6,90 que supera el consenso de 6,69. Aunque el tráfico cayó, el ticket medio subió un 4,5%, señal de que los compradores que acuden gastan más. El plan de expansión incluye abrir unas 400 tiendas nuevas y convertir otras 630 al formato multiprecio más rentable. La alianza con DoorDash incorpora más de 9.000 tiendas en 48 estados a la entrega bajo demanda, sumándose a acuerdos con Instacart y Uber Eats. El resultado fue inesperadamente fuerte en un contexto de expectativas muy deprimidas, lo que explica la reacción desproporcionada de la acción en premercado." },
+  { num:"12", title:"Tesla empieza la fábrica de Optimus en Giga Texas", text:"Tesla ha instalado el primer acero estructural de la fábrica dedicada a su robot humanoide Optimus dentro del North Campus de Giga Texas, una expansión que añadirá más de 5,2 millones de pies cuadrados de espacio industrial. La ambición declarada es fabricar hasta 10 millones de robots al año —aproximadamente 27.000 diarios— cuando la planta esté completada. Mientras tanto, la producción inicial se trasladará a Fremont tras el cierre de las líneas del Model S y Model X, con arranque previsto para julio o agosto de 2026 para unidades destinadas a tareas internas y recogida de datos reales; la producción masiva en Texas apunta al verano de 2027. Musk afirma que Optimus podría convertirse en el producto más importante del mundo y el mayor contribuyente a la valoración de Tesla. El proyecto requiere varios miles de millones de dólares y enfrenta retos de cadena de suministro, autonomía e integración de actuadores y sensores, pero representa el intento más concreto hasta ahora de convertir a Tesla en una empresa de máquinas inteligentes de propósito general." },
+  { num:"13", title:"Apple desarrolla bloqueo instantáneo anti-arrebatón para iPhone", text:"Apple está desarrollando una función que bloqueará el iPhone de forma inmediata si detecta que ha sido arrebatado de la mano del usuario, según código visto por 9to5Mac. El sistema combinaría giroscopio, acelerómetro y otros sensores con la señal de un Apple Watch emparejado para identificar que el dispositivo se ha alejado bruscamente de la muñeca del propietario; al activarse, bloquearía el teléfono y pondría en marcha Stolen Device Protection, que exige autenticación biométrica para acceder a contraseñas, datos bancarios o tarjetas y aplica demoras de una hora en acciones sensibles como cambiar la contraseña de la cuenta Apple. La función reforzaría una protección ya pensada para ladrones que observan el código de desbloqueo antes de robar, aunque Android ya cuenta con una herramienta similar llamada Theft Detection Lock. No hay fecha confirmada de lanzamiento, pero la existencia del código sugiere que la característica está en desarrollo activo. En el fondo, es un movimiento que reconoce la vulnerabilidad física del hardware más valioso del bolsillo." },
+  { num:"14", title:"Los mejores ingenieros no escriben más código: escriben el correcto", text:"Todo código genera costes reales de latencia, complejidad, mantenimiento, depuración, infraestructura, soporte y migraciones futuras, lo haya escrito una persona o una IA. La tesis del artículo es que el software es caro porque consume tiempo, y que producir más código —incluyendo slop generado por LLMs— solo traslada ese coste al futuro. Un ingeniero senior aporta valor cuando deja de decir «puedo hacerlo en unos días» y empieza a preguntar «¿por qué estamos construyendo esto?», alineando primero el problema con el stakeholder, ajustando requisitos para entregar más rápido y trabajando con ciclos cortos de feedback para no gastar semanas en algo innecesario. La metáfora central es que el código es una deuda a menos que resuelva el problema correcto. En la era de la IA, donde la velocidad de generación dispara la tentación de construir más, este principio se vuelve más importante, no menos: la calidad de un ingeniero se mide por el valor creado en relación con la complejidad que deja atrás." },
+  { num:"15", title:"La IA no abarata equivocarse: el juicio como habilidad escasa", text:"La IA reduce el coste de producir, pero no el coste de estar equivocado. Esa asimetría es el argumento central: aunque los modelos generen texto, código, imágenes o análisis de forma rápida y plausible, no sustituyen la capacidad humana de detectar cuándo algo es falso, superficial o simplemente insuficiente. El autor explica que el juicio no nace solo de cometer errores propios sino de involucrarse críticamente con trabajos imperfectos, como aprendió editando libros técnicos de autores muy distintos, y traslada esa lección al uso de IA: el valor surge de cuestionar, corregir, eliminar, matizar y obligar al modelo a reconocer incertidumbres en lugar de aceptar sus salidas como definitivas. La preocupación legítima es que muchos usen la IA para saltarse la lucha que forma criterio, produciendo trabajo mediocre que parece terminado. La conclusión es que quienes más valor obtendrán de la IA serán quienes revisen críticamente cada resultado y usen esa fricción para afinar su criterio con el tiempo." }
+];
+
+const articles = [
+  { title:"Claude Opus 4.8: «a modest but tangible improvement»", content:"Lanzado el 28 de mayo de 2026. Mejora clave: ~4x menos propenso a dejar pasar fallos en código sin remarcarlos. Mayor tasa de abstención ante incertidumbre. Precio: $5/$25 por millón tokens. Novedades: mensajes de sistema mid-conversación y mínimo cacheable reducido de 4.096 a 1.024 tokens. Contexto: 1M tokens." },
+  { title:"Waymo abre Ojai robotaxis a pasajeros selectos", content:"Nuevo robotaxi Ojai fabricado por Geely, 6ª generación Waymo Driver. Más barato de producir, con lidar mejorado para lluvia/nieve, chips propios, puertas automáticas. Disponible en SF, LA, Phoenix. Flota: ~4.000 total, 100 Ojai. Objetivo: 1M viajes/semana. Recall de 3.800 vehículos por software ante inundaciones. Pausa en autopistas por zonas de obras." },
+  { title:"La atención como cuello de botella (orchestration tax)", content:"Más agentes no equivale a más productividad si la revisión y decisión es humana y serial. Analogía Ley de Amdahl: el rendimiento total lo limita la parte serial, que es el juicio humano. Cambios de contexto, cansancio y revisiones superficiales son el coste de ignorarlo. Solución: diseñar la atención como recurso escaso." },
+  { title:"Polymarket y el trading con información privilegiada on-chain", content:"Michele Spagnuolo (Google) acusado de ganar $1M+ en Polymarket con cuenta AlphaRaccoon usando datos internos. Identificado primero por tuit con 6M visualizaciones. FBI lo rastreó por retirada de $149.980 a cuenta bancaria con ID italiana. El anonimato on-chain tiene límite cuando los fondos tocan el sistema financiero regulado." },
+  { title:"We're in the Over-engineering Game Now", content:"La IA rompe el equilibrio MVP austero. El autor sobre-ingenieriza proyectos personales con Claude y Codex sin culpa. El software mediocre se vuelve intolerable porque ya no tiene excusa de coste. La pregunta pasa de «qué podemos permitirnos construir» a «qué queremos construir»." },
+  { title:"SpaceX rebaja objetivo IPO; Blue Origin pierde New Glenn", content:"SpaceX: objetivo IPO rebajado de $2T+ a mínimo $1,8T. Blue Origin: New Glenn explota en prueba en tierra en Florida. Mercados estables ante posible acuerdo Washington-Irán. Brent: mayor caída mensual desde 2020." },
+  { title:"Biohub ESMFold2: diseño de proteínas en días", content:"Modelo abierto: ESMC (2.800M secuencias), ESMFold2 (estructuras 3D), ESM Atlas (6.800M secuencias, 1.100M estructuras). Tasas de acierto: 36-88% en minibinders vs EGFR, PDGFRβ, PD-L1, CTLA-4, CD45. Diseño validado en laboratorio en días, no meses. Modelo open source." },
+  { title:"Tax AI: agentes auto-mejorables con feedback humano", content:"Thrive Holdings + OpenAI: 7.000 declaraciones fiscales procesadas. Ahorro ~33% tiempo, +50% productividad, hasta 97% precisión en borradores. En 6 semanas: del 25% al 86% de declaraciones superando 75% de campos correctos. Clave: feedback experto + trazas de producción + evaluaciones específicas para Codex." },
+  { title:"El product-market fit real de la IA: agentes empresariales", content:"PMF real en agentes de código (Claude Code, Codex). Consumo real del autor: $1.199,79 Claude + $980,37 Codex/mes vs planes de $100. Empresas pagan $200+/empleado/mes desde abril 2026. Anthropic: contrato de $1.250M/mes en cómputo hasta 2029." },
+  { title:"Nvidia apuesta $150B anuales en Taiwán", content:"Jensen Huang: hasta $150B anuales en Taiwán pese a Trump. Dependencia crítica de TSMC, Foxconn, Wistron. Nueva sede en 2030. Doble jugada: compromisos con Washington + prioridad real a Taiwán. Restricciones a China pueden acelerar Huawei como alternativa." },
+  { title:"Dollar Tree: Q1 bate expectativas", content:"EPS ajustado $1,74 vs $1,55 estimado. Ventas $4.970M. Comps +3,5%. Margen bruto +120pbs. Previsión FY elevada a $6,70-$7,10. Ticket medio +4,5% aunque tráfico cayó. DoorDash: 9.000 tiendas en 48 estados. Plan: 400 nuevas tiendas + 630 conversiones a multiprecio." },
+  { title:"Tesla empieza fábrica de Optimus en Giga Texas", content:"Primer acero estructural instalado. North Campus: +5,2M pies cuadrados. Objetivo: 10M robots/año (27.000 diarios). Producción inicial en Fremont: jul-ago 2026 para uso interno. Producción masiva Texas: verano 2027. Costo: miles de millones. Musk: «el producto más importante del mundo»." },
+  { title:"Apple desarrolla bloqueo anti-arrebatón para iPhone", content:"Detecta robo con giroscopio, acelerómetro y Apple Watch. Activa automáticamente Stolen Device Protection. Biometría para contraseñas/tarjetas, demoras de 1h para cambios de cuenta. Android ya tiene Theft Detection Lock. Sin fecha de lanzamiento confirmada." },
+  { title:"The Best Engineers Write Less Code (2026)", content:"Todo código es deuda a menos que resuelva el problema correcto. Ingenieros senior preguntan «¿por qué construimos esto?» antes de «cómo». La era IA amplifica la tentación de generar más código, haciendo este principio más crítico. Valor = valor creado / complejidad generada." },
+  { title:"La IA no abarata equivocarse: el juicio como habilidad escasa", content:"La IA reduce coste de producir, no de equivocarse. El juicio —detectar lo falso, superficial o insuficiente— no se puede delegar. Se construye editando activamente los outputs de IA, no aceptándolos. Usar IA para saltarse la lucha que forma criterio produce trabajo mediocre que parece terminado." }
+];
+
+const questions = [
+  {
+    q: "Dos artículos —'orchestration tax' y 'best engineers write less code'— apuntan al mismo problema desde ángulos distintos. ¿Cuál de las siguientes formulaciones lo captura con mayor precisión?",
+    opts: [
+      "A) La IA genera tantos outputs que los humanos no tienen tiempo de revisarlos todos correctamente.",
+      "B) El verdadero cuello de botella no es la capacidad de producción sino la escasez de juicio aplicado, que no se puede paralelizar ni acelerar fácilmente.",
+      "C) Los ingenieros deberían usar menos agentes para no sobrecargarse de trabajo de revisión.",
+      "D) Las empresas deben contratar más revisores humanos para compensar el aumento de código generado por IA.",
+      "E) El problema es que la IA produce código de baja calidad que requiere demasiadas correcciones."
+    ],
+    correct: 1, correctLabel: "B", failLabel: "A",
+    explanation: "La convergencia de ambos textos apunta a que la restricción no es cuantitativa (tiempo, número de revisores) sino cualitativa: el juicio —saber qué vale, qué sobra, por qué se construye algo— es serial por naturaleza humana y no se delega ni se paraleliza. La opción A describe un síntoma, no la causa raíz. La opción E ataca la calidad de la IA, pero el argumento de 'best engineers' aplica igualmente al código humano mediocre: el problema no es quién lo escribe, sino si resuelve el problema correcto."
+  },
+  {
+    q: "Anthropic describe Claude Opus 4.8 como «modesta pero tangible mejora». En el contexto del sector IA, ¿qué señal estratégica envía esa descripción?",
+    opts: [
+      "A) Que Anthropic no tiene capacidad técnica para competir con OpenAI en lanzamientos ambiciosos.",
+      "B) Que Anthropic está siendo transparente para diferenciarse en credibilidad en un mercado saturado de hipérboles.",
+      "C) Que el modelo realmente no merece atención y Anthropic prefiere no sobre-prometer.",
+      "D) Que es una táctica de bajo perfil para no atraer regulación.",
+      "E) Que Anthropic está priorizando modelos pequeños sobre modelos frontier."
+    ],
+    correct: 1, correctLabel: "B", failLabel: "C",
+    explanation: "En un sector donde cada lanzamiento promete 'revolucionar', describir un modelo como mejora modesta es un posicionamiento competitivo sobre honestidad —y el artículo lo explicita: el énfasis en honestidad del modelo refleja la honestidad del anuncio. La opción C confunde descripción precisa con falta de valor: la mejora en honestidad es materialmente significativa para sistemas agénticos. La opción A proyecta debilidad donde hay elección consciente de framing."
+  },
+  {
+    q: "El caso AlphaRaccoon en Polymarket revela una paradoja sobre el anonimato cripto. ¿Cuál es la contradicción estructural central?",
+    opts: [
+      "A) Que las plataformas cripto no tienen herramientas de seguridad adecuadas para detectar fraude.",
+      "B) Que el anonimato on-chain es robusto hasta el momento en que los fondos deben conectarse con el sistema financiero regulado.",
+      "C) Que los mercados predictivos no deberían existir porque facilitan el fraude sistémico.",
+      "D) Que las redes sociales son más eficaces que el FBI para detectar irregularidades financieras.",
+      "E) Que la regulación cripto es insuficiente para proteger a los inversores minoritarios."
+    ],
+    correct: 1, correctLabel: "B", failLabel: "D",
+    explanation: "La paradoja central es que blockchain crea pseudoanonimato, no anonimato real: cada transacción es pública e inmutable, pero mientras el dinero permanece on-chain es difícil de atribuir a una persona. El error fatal fue sacar $149.980 a una cuenta bancaria a su nombre —el momento en que lo on-chain toca lo regulado, el rastro se vuelve identificable. La opción D es un hecho real (el tuit fue primero) pero describe el descubrimiento inicial, no la paradoja estructural que hace rastreable a cualquier operador sofisticado a largo plazo."
+  },
+  {
+    q: "La inversión de Nvidia de $150B anuales en Taiwán contradice el discurso de Trump sobre reindustrialización americana. ¿Cuál es la interpretación más sólida?",
+    opts: [
+      "A) Nvidia desconfía de las políticas de Trump y prefiere asegurar su base geopolítica en Asia.",
+      "B) Es una decisión principalmente técnica: las capacidades de empaquetado y fabricación que Nvidia necesita hoy no existen todavía en EE. UU. con la escala necesaria.",
+      "C) Jensen Huang prioriza lazos culturales asiáticos sobre los intereses americanos.",
+      "D) Nvidia busca reducir su exposición fiscal en EE. UU. aprovechando incentivos taiwaneses.",
+      "E) Es un movimiento defensivo para no depender de una sola región geopolítica."
+    ],
+    correct: 1, correctLabel: "B", failLabel: "E",
+    explanation: "El artículo es explícito: Nvidia necesita TSMC, Foxconn, Wistron y tecnologías de empaquetado avanzado que sencillamente no están disponibles en EE. UU. con la escala y madurez necesarias para responder a la demanda actual de centros de datos de IA. Nvidia también promete $500B en EE. UU. —la doble jugada— pero la capacidad real está en Taiwán. La opción E (diversificación geopolítica) es parcialmente válida pero no captura la restricción técnica que es el verdadero motor: no es estrategia de riesgo, es dependencia de capacidad instalada."
+  },
+  {
+    q: "ESMFold2 puede diseñar binders con tasas de acierto del 36-88% en días. Si esto se confirma a escala, ¿cuál es la implicación más importante para la industria farmacéutica?",
+    opts: [
+      "A) Los investigadores humanos dejarán de ser necesarios en la fase de descubrimiento de fármacos.",
+      "B) El cuello de botella del desarrollo farmacéutico se desplazará desde el descubrimiento inicial de candidatos hacia las fases clínicas de validación.",
+      "C) Los ensayos clínicos podrán acelerarse porque los modelos también predicen eficacia en humanos.",
+      "D) Las farmacéuticas que no adopten ESMFold2 perderán competitividad en menos de cinco años.",
+      "E) El coste de producir medicamentos caerá drásticamente porque el diseño computacional reemplaza la síntesis química."
+    ],
+    correct: 1, correctLabel: "B", failLabel: "A",
+    explanation: "Si la búsqueda de candidatos terapéuticos pasa de años a días, el descubrimiento deja de ser el factor limitante. El nuevo cuello de botella —inamovible por ahora— son los ensayos clínicos: Fase I, II, III siguen requiriendo tiempo biológico real, reclutamiento de pacientes y seguimiento de años. La opción A sobreinterpreta: los investigadores siguen siendo esenciales para diseñar experimentos de validación, interpretar resultados y gestionar complejidad regulatoria. La opción C confunde capacidad de diseño computacional con predicción de eficacia clínica, que son problemas completamente distintos."
+  },
+  {
+    q: "El análisis del PMF muestra que el consumo real de Claude y Codex puede superar $2.000/mes por usuario avanzado. ¿Qué implica esto para la sostenibilidad del modelo de negocio?",
+    opts: [
+      "A) Que los laboratorios están perdiendo dinero en sus planes de consumidor y necesitan subir precios urgentemente.",
+      "B) Que el segmento empresarial puede financiar la infraestructura porque paga precios cercanos a los costes reales, mientras los planes de consumidor son subvenciones cruzadas con valor de adquisición y datos.",
+      "C) Que los agentes de código son el único modelo de negocio viable para los laboratorios de IA.",
+      "D) Que Anthropic y OpenAI están en riesgo financiero inminente porque sus costes superan sus ingresos.",
+      "E) Que las empresas adoptarán modelos propietarios internos para evitar los costes de API."
+    ],
+    correct: 1, correctLabel: "B", failLabel: "D",
+    explanation: "La brecha ($100/mes plan consumer vs. $2.000+ consumo real) revela que los planes de consumidor son subvencionados —tienen valor de adquisición y datos de entrenamiento— mientras el enterprise a precios API se acerca a cubrir costes reales de infraestructura. El acuerdo de $1.250M/mes de Anthropic en cómputo confirma la escala de esos costes. La opción D confunde escala de inversión con riesgo de quiebra inminente: una empresa puede tener pérdidas mientras construye base de clientes y tiene respaldo financiero. La opción C es demasiado restrictiva."
+  },
+  {
+    q: "Tres artículos (orchestration tax, best engineers, juicio en la era IA) convergen en una tesis sobre el trabajo humano. ¿Cuál la articula mejor?",
+    opts: [
+      "A) Los humanos deben especializarse en tareas creativas porque la IA domina las analíticas.",
+      "B) La IA eleva el valor de las habilidades que no se pueden automatizar: juicio contextual, criterio editorial y responsabilidad sobre el resultado final.",
+      "C) Los trabajadores del conocimiento deberían aprender a usar IA o quedarán obsoletos en 2-3 años.",
+      "D) La productividad humana aumentará proporcionalmente al número de agentes de IA disponibles.",
+      "E) El trabajo humano seguirá siendo necesario principalmente para supervisar errores éticos de la IA."
+    ],
+    correct: 1, correctLabel: "B", failLabel: "D",
+    explanation: "Los tres textos apuntan a lo mismo desde ángulos distintos: la atención humana es serial e irremplazable (orchestration tax), el código que no resuelve el problema correcto es deuda independientemente de quién lo escriba (best engineers), y producir rápido sin criterio genera trabajo mediocre que parece terminado (juicio). La síntesis es que la IA amplifica la capacidad de producción pero no el criterio sobre qué vale la pena producir. La opción D es la trampa más atractiva: asume linealidad donde la Ley de Amdahl garantiza rendimiento decreciente a medida que el cuello de botella humano se vuelve dominante."
+  },
+  {
+    q: "Waymo, Tesla Optimus y Apple anti-snatching representan tres aproximaciones distintas a la integración de IA en hardware físico. ¿Qué tensión estructural comparten?",
+    opts: [
+      "A) Los tres dependen de regulación gubernamental favorable que aún no está garantizada.",
+      "B) Los tres están liderados por empresas con recursos casi ilimitados, lo que elimina barreras de entrada para sus respectivos sectores.",
+      "C) Los tres enfrentan el mismo problema: la madurez del software supera la capacidad de validar su comportamiento en el mundo físico con la velocidad y escala que el mercado exige.",
+      "D) Los tres representan apuestas a largo plazo cuyos retornos son inciertos y podrían no materializarse en la próxima década.",
+      "E) Los tres requieren cadenas de suministro de semiconductores concentradas en Asia que dependen de tensiones geopolíticas."
+    ],
+    correct: 2, correctLabel: "C", failLabel: "A",
+    explanation: "Waymo pausa viajes en autopista por problemas en obras y hace recall por inundaciones —la conducción autónoma avanza pero la validación en escenarios reales sigue siendo el cuello de botella. Tesla promete 10M robots/año pero empieza con unidades para recogida de datos internos en Fremont. Apple desarrolla el código pero sin fecha porque validar la fiabilidad del sensor en miles de situaciones de robo reales no se puede acelerar infinitamente. El hilo común: el software puede diseñarse rápidamente con IA, pero probar que funciona en el caos del mundo físico sigue requiriendo tiempo real. La opción A aplica parcialmente a Waymo pero no con igual fuerza a Apple o Tesla."
+  }
+];
+
+let currentQ = 0, selectedOpt = null, submitted = false, answeredCount = 0;
+
+function show(section) {
+  ttsStop();
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  const navBtns = document.querySelectorAll('nav button:not(.dl-btn)');
+  navBtns.forEach(b => b.classList.remove('active'));
+  document.getElementById('sec-' + section).classList.add('active');
+  const map = { sintesis: 0, resumenes: 1, articulos: 2, debate: 3 };
+  if (map[section] !== undefined) navBtns[map[section]].classList.add('active');
+}
+
+function buildResumes() {
+  document.getElementById('resumeGrid').innerHTML = resumes.map(r =>
+    `<div class="resume-card">
+      <div class="resume-num">Artículo ${r.num}</div>
+      <div class="resume-title">${r.title}</div>
+      <div class="resume-text">${r.text}</div>
+    </div>`
+  ).join('');
+}
+
+function buildAccordion() {
+  document.getElementById('accordionContainer').innerHTML = articles.map((a, i) =>
+    `<div class="accordion-item">
+      <button class="accordion-btn" onclick="toggleAcc(${i},this)">
+        <span>${String(i+1).padStart(2,'0')}. ${a.title}</span>
+        <span class="accordion-arrow">▶</span>
+      </button>
+      <div class="accordion-content" id="acc-${i}">${a.content}</div>
+    </div>`
+  ).join('');
+}
+
+function toggleAcc(i, btn) {
+  const c = document.getElementById('acc-' + i);
+  const open = c.classList.toggle('open');
+  btn.classList.toggle('open', open);
+}
+
+function buildDots() {
+  document.getElementById('progressDots').innerHTML = questions.map((_, i) =>
+    `<div class="dot" id="dot-${i}"></div>`
+  ).join('');
+  updateDots();
+}
+
+function updateDots() {
+  questions.forEach((_, i) => {
+    const d = document.getElementById('dot-' + i);
+    d.className = 'dot' + (i < currentQ ? ' done' : i === currentQ ? ' current' : '');
+  });
+}
+
+function renderQuestion() {
+  if (currentQ >= questions.length) {
+    document.getElementById('debateProgress').textContent = 'Debate completado';
+    document.getElementById('questionContainer').innerHTML =
+      `<div class="debate-complete"><h2>🎯 Debate completado</h2><p>${answeredCount} de ${questions.length} preguntas respondidas.</p></div>`;
+    return;
+  }
+  const q = questions[currentQ];
+  document.getElementById('debateProgress').textContent = `Pregunta ${currentQ + 1} de ${questions.length}`;
+  updateDots();
+  selectedOpt = null; submitted = false;
+  document.getElementById('questionContainer').innerHTML =
+    `<div class="question-text">${q.q}</div>` +
+    q.opts.map((o, i) => `<button class="option-btn" id="opt-${i}" onclick="selectOpt(${i})">${o}</button>`).join('') +
+    `<div class="correction-box" id="correctionBox"></div>
+     <div class="debate-actions">
+       <button class="submit-btn" id="submitBtn" onclick="submitAnswer()" disabled>Enviar respuesta</button>
+       <button class="next-btn" id="nextBtn" onclick="nextQuestion()">Siguiente pregunta →</button>
+     </div>`;
+}
+
+function selectOpt(i) {
+  if (submitted) return;
+  selectedOpt = i;
+  document.querySelectorAll('.option-btn').forEach((b, j) => b.classList.toggle('selected', j === i));
+  document.getElementById('submitBtn').disabled = false;
+}
+
+function submitAnswer() {
+  if (selectedOpt === null || submitted) return;
+  submitted = true; answeredCount++;
+  const q = questions[currentQ];
+  const isCorrect = selectedOpt === q.correct;
+  const letra = String.fromCharCode(65 + selectedOpt);
+  const textoOpcion = q.opts[selectedOpt];
+
+  document.querySelectorAll('.option-btn').forEach((b, i) => {
+    if (i === q.correct) b.classList.add('correct-opt');
+    else if (i === selectedOpt && !isCorrect) b.classList.add('wrong-opt');
+    b.disabled = true;
+  });
+  document.getElementById('submitBtn').style.display = 'none';
+
+  const box = document.getElementById('correctionBox');
+  box.className = `correction-box ${isCorrect ? 'correct-ans' : 'wrong-ans'} visible`;
+  box.innerHTML = `
+    <div class="correction-verdict ${isCorrect ? 'ok' : 'bad'}">${isCorrect ? '✓ Correcto' : '✗ Incorrecto — la respuesta era ' + q.correctLabel + ')'}</div>
+    <div class="correction-label">Por qué</div>
+    <div class="correction-text">${q.explanation}</div>
+    <div class="chat-hint">Claude está desarrollando el debate en el chat →</div>
+  `;
+  requestAnimationFrame(() => requestAnimationFrame(() => box.classList.add('faded-in')));
+
+  if (typeof sendPrompt === 'function') {
+    sendPrompt(`[SOCRÁTICA P${currentQ+1}] "${q.q}" → Seleccioné: ${letra}) ${textoOpcion}`);
+  }
+
+  setTimeout(() => {
+    const btn = document.getElementById('nextBtn');
+    if (btn) { btn.classList.add('visible'); requestAnimationFrame(() => requestAnimationFrame(() => btn.classList.add('faded-in'))); }
+  }, 300);
+}
+
+function nextQuestion() { currentQ++; renderQuestion(); updateDots(); }
+
+let readingMode = false, ttsSpeaking = false;
+function toggleReading() {
+  readingMode = !readingMode;
+  document.body.classList.toggle('reading', readingMode);
+  document.getElementById('fab-label').textContent = readingMode ? 'Salir' : 'Modo lectura';
+  document.getElementById('read-fab').classList.toggle('active', readingMode);
+  document.getElementById('tts-bar').classList.toggle('visible', readingMode);
+  if (!readingMode) ttsStop();
+}
+function ttsPlay() {
+  if (!window.speechSynthesis) return;
+  if (ttsSpeaking) { speechSynthesis.resume(); setTTSState(true); return; }
+  speechSynthesis.cancel();
+  const text = (document.querySelector('.section.active') || document.body).innerText;
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = 'es-ES'; u.rate = 0.92;
+  const v = speechSynthesis.getVoices().find(v => v.lang && v.lang.startsWith('es'));
+  if (v) u.voice = v;
+  u.onend = u.onerror = () => { ttsSpeaking = false; setTTSState(false); document.getElementById('tts-label').textContent = 'Leer en voz alta'; };
+  speechSynthesis.speak(u); ttsSpeaking = true; setTTSState(true);
+  document.getElementById('tts-label').textContent = 'Reproduciendo…';
+}
+function ttsPause() { speechSynthesis.pause(); setTTSState(false); document.getElementById('tts-label').textContent = 'En pausa'; }
+function ttsStop() {
+  window.speechSynthesis && speechSynthesis.cancel();
+  ttsSpeaking = false; setTTSState(false);
+  const l = document.getElementById('tts-label'); if (l) l.textContent = 'Leer en voz alta';
+}
+function setTTSState(p) {
+  document.getElementById('tts-play').style.display = p ? 'none' : 'inline-block';
+  document.getElementById('tts-pause').style.display = p ? 'inline-block' : 'none';
+}
+function downloadHTML() {
+  const blob = new Blob([document.documentElement.outerHTML], { type: 'text/html' });
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+  a.download = 'lectura-inteligente-2026-05-29.html'; a.click(); URL.revokeObjectURL(a.href);
+}
+
+buildResumes(); buildAccordion(); buildDots(); renderQuestion();
+</script>
+</body>
+</html>
