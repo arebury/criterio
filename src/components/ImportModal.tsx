@@ -1,22 +1,63 @@
-import { useRef, useState } from 'react';
+import { useState } from 'react';
 import { useStore } from '../state/store';
 import { validateIssue } from '../schema/issue';
 import { Modal } from './Modal';
+
+/**
+ * Extracts the edition JSON from whatever the user pasted. Tolerant on purpose:
+ * Claude (or ChatGPT) usually prints the JSON inside a ```json code fence and
+ * sometimes with a line of prose before or after. We strip the fence and pull
+ * out the first balanced { … } object so the reader can just paste and import.
+ */
+function extractIssueJson(raw: string): string {
+  let text = raw.trim();
+
+  // 1) Unwrap a markdown code fence: ```json … ``` or ``` … ```
+  const fence = text.match(/```[a-zA-Z]*\s*([\s\S]*?)```/);
+  if (fence) text = fence[1].trim();
+
+  // 2) Already a clean object → use as-is
+  if (text.startsWith('{')) return text;
+
+  // 3) Otherwise pull the first balanced { … } block out of surrounding prose
+  const start = text.indexOf('{');
+  if (start === -1) return text;
+  let depth = 0;
+  let inString = false;
+  let escaped = false;
+  for (let i = start; i < text.length; i++) {
+    const c = text[i];
+    if (inString) {
+      if (escaped) escaped = false;
+      else if (c === '\\') escaped = true;
+      else if (c === '"') inString = false;
+    } else if (c === '"') {
+      inString = true;
+    } else if (c === '{') {
+      depth++;
+    } else if (c === '}') {
+      depth--;
+      if (depth === 0) return text.slice(start, i + 1);
+    }
+  }
+  return text.slice(start);
+}
 
 export function ImportModal({ open, onClose }: { open: boolean; onClose: () => void }) {
   const { importIssue } = useStore();
   const [text, setText] = useState('');
   const [errors, setErrors] = useState<string[]>([]);
-  const fileRef = useRef<HTMLInputElement>(null);
 
   if (!open) return null;
 
   const tryImport = (raw: string) => {
     let parsed: unknown;
     try {
-      parsed = JSON.parse(raw);
+      parsed = JSON.parse(extractIssueJson(raw));
     } catch {
-      setErrors(['El texto no es JSON válido.']);
+      setErrors([
+        'No he reconocido el texto pegado. Copia de nuevo todo lo que generó Claude e inténtalo otra vez.',
+      ]);
       return;
     }
     const result = validateIssue(parsed);
@@ -30,40 +71,19 @@ export function ImportModal({ open, onClose }: { open: boolean; onClose: () => v
     onClose();
   };
 
-  const onFile = async (file: File) => {
-    const content = await file.text();
-    setText(content);
-    tryImport(content);
-  };
-
   return (
     <Modal title="Importar edición" onClose={onClose}>
       <p className="modal-desc">
-        Pega el JSON generado por la skill de Claude (o por cualquier fuente que cumpla el contrato
-        de datos), o sube el archivo <code>.json</code>.
+        Pega aquí el texto que copiaste de Claude y pulsa <strong>«Importar»</strong>. No te
+        preocupes por el formato: yo me encargo del resto.
       </p>
-
-      <div className="modal-row">
-        <button className="btn btn-ghost" onClick={() => fileRef.current?.click()}>
-          Subir archivo .json
-        </button>
-        <input
-          ref={fileRef}
-          type="file"
-          accept="application/json,.json"
-          hidden
-          onChange={(e) => {
-            const file = e.target.files?.[0];
-            if (file) void onFile(file);
-          }}
-        />
-      </div>
 
       <textarea
         className="import-textarea"
-        placeholder='{ "version": 1, "date": "2026-05-30", "title": "…", "synthesis": [...], "summaries": [...], "articles": [...], "questions": [...] }'
+        placeholder="Pega aquí el texto que copiaste…"
         value={text}
-        rows={10}
+        rows={12}
+        autoFocus
         onChange={(e) => setText(e.target.value)}
       />
 

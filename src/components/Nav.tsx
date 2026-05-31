@@ -49,8 +49,9 @@ export function Nav({ active, onSelect, onOpenImport, onOpenSettings, hasIssue }
           <ImportIcon size={16} />
           <span>Importar</span>
         </button>
-        <button className="nav-icon" onClick={onOpenSettings} title="Ajustes" aria-label="Ajustes">
+        <button className="nav-icon" onClick={onOpenSettings} title="Ajustes">
           <SettingsIcon size={17} />
+          <span>Ajustes</span>
         </button>
         {hasIssue && (
           <button
