@@ -12,6 +12,8 @@
   <img alt="License" src="https://img.shields.io/badge/license-MIT-blue" />
 </p>
 
+**Demo en vivo → [criterio-areses.netlify.app](https://criterio-areses.netlify.app)**
+
 Lectura editorial profunda sobre un lote diario de artículos: resúmenes de 150 palabras,
 una síntesis agregada y un **debate socrático** que entrena el juicio en lugar de limitarse
 a informar.
@@ -134,14 +136,20 @@ sistema, con el mismo nombre fechado.
 
 ## Despliegue
 
-El repositorio incluye [`netlify.toml`](netlify.toml) con build (`npm run build`), carpeta de
-publicación (`dist`), redirección SPA y cabeceras de seguridad. Para conectar:
+Ya está desplegado en [criterio-areses.netlify.app](https://criterio-areses.netlify.app). El
+repositorio incluye [`netlify.toml`](netlify.toml) con build (`npm run build`), carpeta de
+publicación (`dist`), redirección SPA y cabeceras de seguridad.
 
-1. En Netlify: **Add new site → Import an existing project** y elige este repositorio.
-2. Netlify detecta `netlify.toml`; no hay que configurar nada a mano.
-3. Cada `push` a `main` dispara un despliegue.
+**Despliegue continuo (recomendado).** Para que cada `push` a `main` redespliegue solo, conecta
+el repo una vez en Netlify: **Site → Build & deploy → Link repository → GitHub → arebury/criterio**.
+Netlify lee `netlify.toml` y no hay que configurar nada más.
 
-Alternativa por CLI: `npm i -g netlify-cli && netlify init`.
+**Despliegue manual por CLI** (lo usado para la primera publicación):
+
+```bash
+npm run build
+netlify deploy --prod --dir=dist
+```
 
 ---
 
