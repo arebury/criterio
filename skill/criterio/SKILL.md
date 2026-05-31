@@ -85,7 +85,9 @@ Prepara exactamente **8 preguntas** ordenadas de menor a mayor dificultad intele
 ## Fase 4 — El contrato de edición (output JSON)
 
 Devuelve **un único bloque de código JSON** con esta forma exacta. Es la única salida que
-el usuario necesita: la copia o la guarda como `.json` y la importa en Criterio.
+el usuario necesita: lo **copia y lo pega** en Criterio (el botón **Importar** acepta el texto
+pegado tal cual —tolera el bloque ` ```json ` y la prosa alrededor—; no hace falta guardar
+ningún archivo).
 
 ```json
 {
