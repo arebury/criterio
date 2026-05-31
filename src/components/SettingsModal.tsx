@@ -3,7 +3,19 @@ import { formatSpanishDate } from '../lib/dates';
 import { Modal } from './Modal';
 import { FolderIcon } from './icons';
 
-export function SettingsModal({ open, onClose }: { open: boolean; onClose: () => void }) {
+type TextSize = 'normal' | 'grande' | 'enorme';
+
+export function SettingsModal({
+  open,
+  onClose,
+  textSize,
+  onTextSize,
+}: {
+  open: boolean;
+  onClose: () => void;
+  textSize: TextSize;
+  onTextSize: (size: TextSize) => void;
+}) {
   const {
     fsSupported,
     exportDirName,
@@ -20,6 +32,29 @@ export function SettingsModal({ open, onClose }: { open: boolean; onClose: () =>
 
   return (
     <Modal title="Ajustes" onClose={onClose}>
+      <section className="settings-block">
+        <h3>Tamaño de letra</h3>
+        <p className="modal-desc">Elige el tamaño del texto de lectura.</p>
+        <div className="text-size-options">
+          {(
+            [
+              ['normal', 'Normal'],
+              ['grande', 'Grande'],
+              ['enorme', 'Enorme'],
+            ] as const
+          ).map(([value, label]) => (
+            <button
+              key={value}
+              className={`text-size-btn${textSize === value ? ' active' : ''}`}
+              aria-pressed={textSize === value}
+              onClick={() => onTextSize(value)}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+      </section>
+
       <section className="settings-block">
         <h3>Carpeta de exportación</h3>
         {fsSupported ? (

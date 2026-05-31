@@ -62,6 +62,14 @@ archivo por turno y verifica que llegó contenido.)
 
 _Actualizar al final de cada sesión._
 
+- **2026-05-31 (cont.)**
+  - **Menú hamburguesa en móvil:** las acciones (Importar / Ajustes / Descargar + selector de
+    edición) se colapsan en un botón "Menú" con desplegable accesible (Escape, toque fuera, o al
+    elegir). Desktop intacto. Verificado con Playwright (abrir Menú → Ajustes a 390 px).
+  - **Tamaño de letra** en Ajustes (Normal / Grande / Enorme), persistido en `localStorage`
+    (`criterio.textSize`) mediante una clase en `<body>`.
+  - `skill/criterio/SKILL.md` actualizado: importar es copiar y pegar (no guardar archivo).
+
 - **2026-05-31**
   - Import → **solo pegar texto** (quitado "Subir archivo .json"); parser tolerante a bloques
     ` ```json ` y a prosa alrededor; textos simplificados sin la palabra "JSON".

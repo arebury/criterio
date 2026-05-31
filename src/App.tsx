@@ -20,6 +20,14 @@ export function App() {
   const [ttsState, setTtsState] = useState<TtsState>('idle');
   const [importOpen, setImportOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [textSize, setTextSize] = useState<'normal' | 'grande' | 'enorme'>(() => {
+    try {
+      const v = localStorage.getItem('criterio.textSize');
+      return v === 'grande' || v === 'enorme' ? v : 'normal';
+    } catch {
+      return 'normal';
+    }
+  });
 
   const contentRef = useRef<HTMLElement>(null);
   const ttsRef = useRef<TtsController | null>(null);
@@ -37,6 +45,17 @@ export function App() {
     document.body.classList.toggle('reading', readingMode);
     return () => document.body.classList.remove('reading');
   }, [readingMode]);
+
+  // Apply and persist the reading text-size preference.
+  useEffect(() => {
+    document.body.classList.toggle('text-grande', textSize === 'grande');
+    document.body.classList.toggle('text-enorme', textSize === 'enorme');
+    try {
+      localStorage.setItem('criterio.textSize', textSize);
+    } catch {
+      /* localStorage may be unavailable */
+    }
+  }, [textSize]);
 
   const goTo = (section: Section) => {
     tts.stop();
@@ -103,7 +122,12 @@ export function App() {
       )}
 
       <ImportModal open={importOpen} onClose={() => setImportOpen(false)} />
-      <SettingsModal open={settingsOpen} onClose={() => setSettingsOpen(false)} />
+      <SettingsModal
+        open={settingsOpen}
+        onClose={() => setSettingsOpen(false)}
+        textSize={textSize}
+        onTextSize={setTextSize}
+      />
       <Toast />
 
       {/* Reading-mode tabs are hidden via CSS; expose them here for context. */}
