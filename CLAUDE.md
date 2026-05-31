@@ -39,6 +39,18 @@ visibles → "el texto que copiaste"); objetivos de pulsado grandes; accesibilid
 - `npm run test:e2e` — Playwright
 - `npm run lint` / `npm run format` — el CI ejecuta `lint` y `format:check`
 
+## Despliegue (IMPORTANTE)
+
+Sitio en vivo: **https://criterio-areses.netlify.app** (proyecto Netlify `criterio-areses`,
+cuenta Rafa Areses). El despliegue es **manual con la CLI de Netlify**:
+
+    npm run build
+    netlify deploy --prod --dir=dist
+
+`git push` a `main` **NO publica**: el workflow de GitHub Actions solo hace
+typecheck/lint/test/build, no despliega. Tras desplegar, verifica que la web sirve el hash nuevo
+de `dist/assets`. (Ojo: `criterio.netlify.app` sin sufijo da 404; no es este sitio.)
+
 ## Regla de trabajo (IMPORTANTE)
 
 **Si una herramienta devuelve un resultado vacío o ilegible, PARA y dilo. Nunca inventes**
@@ -53,10 +65,14 @@ _Actualizar al final de cada sesión._
 - **2026-05-31**
   - Import → **solo pegar texto** (quitado "Subir archivo .json"); parser tolerante a bloques
     ` ```json ` y a prosa alrededor; textos simplificados sin la palabra "JSON".
-  - Botón **Ajustes** ahora lleva texto (como Importar/Descargar).
-  - `.nav-icon` con borde y estados claros (hover / active / focus-visible) para que se vean como
-    botones.
-  - Verificado: `npm run build` ✅ y `npm test` ✅ (23/23).
-  - **Pendiente / ideas:** revisar visualmente en navegador; actualizar `skill/criterio/SKILL.md`
-    para que indique "copia y pega el texto" (en vez de guardar archivo); posible control de
-    **tamaño de letra** en Ajustes (útil para el lector mayor; hoy no existe).
+  - Botón **Ajustes** ahora lleva texto (como Importar/Descargar); `.nav-icon` con borde y
+    estados (hover/active/focus) para que se vean como botones.
+  - **Responsive móvil:** el nav se reorganiza (marca + acciones arriba, pestañas como barra a lo
+    ancho abajo, pulsado ≥44px), tipografía y modales adaptados, acciones del debate a ancho
+    completo. Desktop intacto (todo bajo `@media`). Pestañas envueltas en `.nav-tabs` en Nav.tsx.
+  - **Debate:** "Abrir Claude" copia el prompt antes de abrir; en móvil navega en la misma
+    pestaña para disparar la app de Claude (universal link). Copia con fallback `execCommand`.
+  - Verificado: `build` ✅, `lint` ✅, `test` ✅ (15/15) y **desplegado en producción**
+    (criterio-areses.netlify.app sirve el build nuevo, HTTP 200).
+  - **Pendiente / ideas:** revisar en un móvil real; actualizar `skill/criterio/SKILL.md` para
+    que diga "copia y pega el texto"; control de **tamaño de letra** en Ajustes (lector mayor).

@@ -18,17 +18,20 @@ export function Nav({ active, onSelect, onOpenImport, onOpenSettings, hasIssue }
     <nav>
       <span className="brand">Criterio</span>
 
-      {hasIssue &&
-        SECTIONS.map((section) => (
-          <button
-            key={section.id}
-            className={`nav-tab${active === section.id ? ' active' : ''}`}
-            aria-current={active === section.id ? 'page' : undefined}
-            onClick={() => onSelect(section.id)}
-          >
-            {section.label}
-          </button>
-        ))}
+      {hasIssue && (
+        <div className="nav-tabs">
+          {SECTIONS.map((section) => (
+            <button
+              key={section.id}
+              className={`nav-tab${active === section.id ? ' active' : ''}`}
+              aria-current={active === section.id ? 'page' : undefined}
+              onClick={() => onSelect(section.id)}
+            >
+              {section.label}
+            </button>
+          ))}
+        </div>
+      )}
 
       <div className="nav-actions">
         {issues.length > 1 && currentDate && (

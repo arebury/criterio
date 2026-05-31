@@ -120,6 +120,11 @@ nav {
   color: var(--accent);
   border-bottom-color: var(--accent);
 }
+.nav-tabs {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
 .nav-actions {
   margin-left: auto;
   display: flex;
@@ -808,26 +813,113 @@ body.reading .synth-body p {
   margin-bottom: 24px;
 }
 
-/* ---------- Responsive: tighten the nav on small screens ---------- */
-@media (max-width: 600px) {
+/* ---------- Responsive (mobile/tablet) — desktop styles above are untouched ---------- */
+@media (max-width: 760px) {
+  /* Nav reflows: brand + action buttons on top, section tabs as a full-width
+     bar below. Order keeps the tabs (width:100%) on their own row. */
   nav {
     padding: 0 12px;
+    gap: 0;
   }
   .brand {
-    padding: 13px 8px 13px 0;
-    font-size: 14px;
-  }
-  .nav-tab {
-    padding: 13px 10px;
-    letter-spacing: 0.03em;
+    order: 1;
+    padding: 12px 8px 12px 0;
   }
   .nav-actions {
-    width: 100%;
+    order: 2;
+    margin-left: auto;
+    flex-wrap: wrap;
     justify-content: flex-end;
-    gap: 2px;
-    padding-bottom: 6px;
+    gap: 6px;
+    padding: 6px 0;
   }
+  .nav-tabs {
+    order: 3;
+    width: 100%;
+    gap: 0;
+    border-top: 1px solid var(--line);
+  }
+  .nav-tab {
+    flex: 1 1 0;
+    min-width: 0;
+    text-align: center;
+    padding: 14px 4px;
+    font-size: 12px;
+    letter-spacing: 0.02em;
+    min-height: 48px;
+  }
+  .nav-icon {
+    min-height: 44px;
+    padding: 9px 13px;
+  }
+  .issue-select {
+    min-height: 44px;
+  }
+
+  /* Content breathing room + comfortable type for an older reader on a phone */
   .section-pane {
-    padding: 28px 20px 110px;
+    padding: 28px 18px 120px;
+  }
+  .synth-title {
+    font-size: 23px;
+  }
+  .resume-text {
+    font-size: 15px;
+  }
+  .accordion-btn {
+    font-size: 15px;
+  }
+  .accordion-content {
+    font-size: 15px;
+  }
+
+  /* Debate: stack actions full-width so they are easy to tap */
+  .option-btn {
+    font-size: 15px;
+    padding: 15px 16px;
+  }
+  .claude-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .claude-row .btn {
+    width: 100%;
+  }
+  .debate-actions .btn {
+    width: 100%;
+  }
+  .btn {
+    padding: 14px 22px;
+  }
+
+  /* Modals fill the small screen comfortably */
+  .modal-backdrop {
+    padding: 16px 10px;
+  }
+  .modal {
+    padding: 20px 18px 22px;
+  }
+  .modal-head h2 {
+    font-size: 20px;
+  }
+  .modal-close {
+    padding: 8px 12px;
+  }
+  .import-textarea {
+    font-size: 14px;
+  }
+
+  /* Floating reading-mode tabs never overflow the viewport */
+  .reading-tabs {
+    max-width: calc(100vw - 20px);
+    overflow-x: auto;
+  }
+}
+
+@media (max-width: 380px) {
+  .nav-tab {
+    font-size: 11px;
+    letter-spacing: 0;
+    padding: 14px 2px;
   }
 }

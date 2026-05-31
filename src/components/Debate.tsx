@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, type MouseEvent } from 'react';
 import type { Issue } from '../schema/issue';
 import { optionLetter } from '../lib/letters';
 import { buildDebateBundle, CLAUDE_NEW_CHAT_URL } from '../lib/debate';
@@ -36,13 +36,51 @@ export function Debate({ issue }: { issue: Issue }) {
     setAnswered((n) => n + 1);
   };
 
+  const coarsePointer =
+    typeof window !== 'undefined' &&
+    typeof window.matchMedia === 'function' &&
+    window.matchMedia('(pointer: coarse)').matches;
+
+  const copyText = async (text: string): Promise<boolean> => {
+    try {
+      await navigator.clipboard.writeText(text);
+      return true;
+    } catch {
+      // Fallback for browsers without the async clipboard API.
+      try {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.select();
+        const ok = document.execCommand('copy');
+        document.body.removeChild(ta);
+        return ok;
+      } catch {
+        return false;
+      }
+    }
+  };
+
   const copyPrompt = async () => {
     if (!bundle) return;
-    try {
-      await navigator.clipboard.writeText(bundle.prompt);
-      setCopied(true);
-    } catch {
-      setCopied(false);
+    setCopied(await copyText(bundle.prompt));
+  };
+
+  // On phones, copy the prompt and then navigate in the same tab so the Claude
+  // app (if installed) opens via its universal link. On desktop, let the anchor
+  // open a new tab and copy in the background.
+  const openClaude = (e: MouseEvent<HTMLAnchorElement>) => {
+    if (!bundle) return;
+    if (coarsePointer) {
+      e.preventDefault();
+      void copyText(bundle.prompt).then((ok) => {
+        setCopied(ok);
+        window.location.href = CLAUDE_NEW_CHAT_URL;
+      });
+    } else {
+      void copyText(bundle.prompt).then(setCopied);
     }
   };
 
@@ -126,6 +164,7 @@ export function Debate({ issue }: { issue: Issue }) {
               href={CLAUDE_NEW_CHAT_URL}
               target="_blank"
               rel="noopener noreferrer"
+              onClick={openClaude}
             >
               Abrir Claude ↗
             </a>
