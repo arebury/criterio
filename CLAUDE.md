@@ -62,6 +62,21 @@ archivo por turno y verifica que llegó contenido.)
 
 _Actualizar al final de cada sesión._
 
+- **2026-06-01**
+  - **Import con dos pestañas** (`ImportModal.tsx`): «Pegar texto» (como antes) y «Subir
+    archivo», que acepta el `.json` descargable de ChatGPT (arrastrar o elegir). Ambas pasan
+    por el mismo `extractIssueJson` tolerante. Motivo: el lector pulsaba «Copiar» sobre una
+    respuesta en Canvas/adjunto y solo obtenía el nombre del archivo («text.txt · Documento»),
+    no su contenido.
+  - **Mensaje de error específico**: si el texto pegado no contiene ninguna `{`, el importador
+    explica que se pegó el nombre del archivo, no su contenido.
+  - `skill/criterio/SKILL.md`: la entrega admite **dos formas** válidas (bloque ` ```json ` en
+    el chat **o** archivo `.json` descargable).
+  - Estilos de pestañas/zona de arrastre en `app.css` (`.import-tabs`, `.import-tab`,
+    `.import-dropzone`), con tap targets grandes en móvil.
+  - Verificado: `build` ✅, `lint` ✅, `test` ✅, e2e del import ✅, y **desplegado en
+    producción** (criterio-areses.netlify.app sirve el build nuevo, HTTP 200).
+
 - **2026-05-31 (cont.)**
   - **Menú hamburguesa en móvil:** las acciones (Importar / Ajustes / Descargar + selector de
     edición) se colapsan en un botón "Menú" con desplegable accesible (Escape, toque fuera, o al
