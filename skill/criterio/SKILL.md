@@ -115,6 +115,9 @@ ningún archivo).
 ```
 
 **Reglas del contrato (no las rompas):**
+- **Escribe el JSON dentro del chat como bloque de código** (` ```json `). **Nunca** lo
+  entregues como archivo, documento descargable ni adjunto: el lector copia y pega el texto
+  del chat, y un adjunto solo pega su nombre («text.txt»), no su contenido.
 - `date`: ISO `AAAA-MM-DD`. Es el identificador de la edición.
 - `synthesis`: array de párrafos (no un único string con saltos de línea).
 - `summaries`, `articles`: mismo orden y misma longitud (un resumen por artículo).

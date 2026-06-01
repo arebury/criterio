@@ -51,6 +51,16 @@ export function ImportModal({ open, onClose }: { open: boolean; onClose: () => v
   if (!open) return null;
 
   const tryImport = (raw: string) => {
+    // Fallo más común del lector no técnico: copia la tarjeta del adjunto
+    // ("Pegado text.txt · Documento") en vez del contenido del documento, así
+    // que no hay JSON en absoluto. Si no aparece ninguna "{", apúntale al
+    // arreglo real en vez de dar el mensaje genérico.
+    if (!raw.includes('{')) {
+      setErrors([
+        'Parece que pegaste el nombre de un archivo, no su contenido. Abre el documento que generó Claude y copia el texto que empieza por «{».',
+      ]);
+      return;
+    }
     let parsed: unknown;
     try {
       parsed = JSON.parse(extractIssueJson(raw));
