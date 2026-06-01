@@ -56,6 +56,23 @@ test.describe('Criterio', () => {
     await expect(page.locator('.debate-progress-label')).toContainText('Pregunta 2 de');
   });
 
+  test('import: the "Pedir a la IA" tab offers copyable instructions', async ({ page }) => {
+    await page.goto('/');
+    await page.locator('nav').getByRole('button', { name: 'Importar' }).click();
+    await page.locator('.modal').getByRole('tab', { name: 'Pedir a la IA' }).click();
+    await expect(page.locator('.import-steps')).toBeVisible();
+    await expect(
+      page.locator('.modal').getByRole('button', { name: /Copiar instrucciones/ }),
+    ).toBeVisible();
+  });
+
+  test('synthesis offers a share button', async ({ page }) => {
+    await page.goto('/');
+    await expect(
+      page.locator('.synth-share').getByRole('button', { name: 'Compartir' }),
+    ).toBeVisible();
+  });
+
   test('import modal rejects invalid JSON with a clear error', async ({ page }) => {
     await page.goto('/');
     await page.locator('nav').getByRole('button', { name: 'Importar' }).click();

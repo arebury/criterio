@@ -1,7 +1,8 @@
 import { useStore } from '../state/store';
 import { formatSpanishDate } from '../lib/dates';
+import { useInstallPrompt } from '../lib/useInstallPrompt';
 import { Modal } from './Modal';
-import { FolderIcon } from './icons';
+import { DownloadIcon, FolderIcon } from './icons';
 
 type TextSize = 'normal' | 'grande' | 'enorme';
 
@@ -25,6 +26,7 @@ export function SettingsModal({
     isImported,
     removeIssue,
   } = useStore();
+  const { canInstall, promptInstall } = useInstallPrompt();
 
   if (!open) return null;
 
@@ -54,6 +56,19 @@ export function SettingsModal({
           ))}
         </div>
       </section>
+
+      {canInstall && (
+        <section className="settings-block">
+          <h3>Instalar como app</h3>
+          <p className="modal-desc">
+            Añade Criterio a tu pantalla de inicio para abrirlo como una app y leerlo sin conexión.
+          </p>
+          <button className="btn btn-primary" onClick={() => void promptInstall()}>
+            <DownloadIcon size={16} />
+            <span>Instalar Criterio</span>
+          </button>
+        </section>
+      )}
 
       <section className="settings-block">
         <h3>Carpeta de exportación</h3>

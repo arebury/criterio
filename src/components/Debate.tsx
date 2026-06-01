@@ -3,6 +3,7 @@ import type { Issue } from '../schema/issue';
 import { optionLetter } from '../lib/letters';
 import { buildDebateBundle, CLAUDE_NEW_CHAT_URL } from '../lib/debate';
 import { loadDebateProgress, saveDebateProgress } from '../lib/storage';
+import { copyText } from '../lib/clipboard';
 import { CheckCircleIcon, ClipboardIcon } from './icons';
 
 export function Debate({ issue }: { issue: Issue }) {
@@ -49,28 +50,6 @@ export function Debate({ issue }: { issue: Issue }) {
     typeof window !== 'undefined' &&
     typeof window.matchMedia === 'function' &&
     window.matchMedia('(pointer: coarse)').matches;
-
-  const copyText = async (text: string): Promise<boolean> => {
-    try {
-      await navigator.clipboard.writeText(text);
-      return true;
-    } catch {
-      // Fallback for browsers without the async clipboard API.
-      try {
-        const ta = document.createElement('textarea');
-        ta.value = text;
-        ta.style.position = 'fixed';
-        ta.style.opacity = '0';
-        document.body.appendChild(ta);
-        ta.select();
-        const ok = document.execCommand('copy');
-        document.body.removeChild(ta);
-        return ok;
-      } catch {
-        return false;
-      }
-    }
-  };
 
   const copyPrompt = async () => {
     if (!bundle) return;

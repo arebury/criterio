@@ -87,6 +87,16 @@ export const FolderIcon = (p: IconProps) => (
   </Outline>
 );
 
+export const ShareIcon = (p: IconProps) => (
+  <Outline {...p}>
+    <circle cx="6" cy="12" r="2.4" />
+    <circle cx="17" cy="6" r="2.4" />
+    <circle cx="17" cy="18" r="2.4" />
+    <path d="m8.1 10.9 6.8-3.8" />
+    <path d="m8.1 13.1 6.8 3.8" />
+  </Outline>
+);
+
 export const ChevronIcon = (p: IconProps) => (
   <Outline {...p}>
     <path d="m9 6 6 6-6 6" />

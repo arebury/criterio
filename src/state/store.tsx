@@ -40,6 +40,7 @@ interface StoreValue {
   clearExportDir: () => Promise<void>;
   exportCurrent: () => Promise<void>;
   dismissToast: () => void;
+  notify: (message: string, kind?: Toast['kind']) => void;
 }
 
 const StoreContext = createContext<StoreValue | null>(null);
@@ -165,6 +166,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     clearExportDir,
     exportCurrent,
     dismissToast: () => setToast(null),
+    notify: showToast,
   };
 
   return <StoreContext.Provider value={value}>{children}</StoreContext.Provider>;

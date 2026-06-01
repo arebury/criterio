@@ -1,5 +1,6 @@
 import type { Issue } from '../schema/issue';
 import { formatSpanishDate } from '../lib/dates';
+import { ShareButton } from './ShareButton';
 
 export function Synthesis({ issue }: { issue: Issue }) {
   return (
@@ -12,6 +13,9 @@ export function Synthesis({ issue }: { issue: Issue }) {
         {issue.synthesis.map((paragraph, i) => (
           <p key={i}>{paragraph}</p>
         ))}
+      </div>
+      <div className="synth-share">
+        <ShareButton issue={issue} />
       </div>
     </>
   );

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useStore } from '../state/store';
 import { validateIssue } from '../schema/issue';
 import { Modal } from './Modal';
+import { CopyPromptButton } from './CopyPromptButton';
 
 /**
  * Extracts the edition JSON from whatever the user pasted. Tolerant on purpose:
@@ -43,7 +44,7 @@ function extractIssueJson(raw: string): string {
   return text.slice(start);
 }
 
-type Tab = 'text' | 'file';
+type Tab = 'text' | 'file' | 'prompt';
 
 export function ImportModal({ open, onClose }: { open: boolean; onClose: () => void }) {
   const { importIssue } = useStore();
@@ -120,9 +121,17 @@ export function ImportModal({ open, onClose }: { open: boolean; onClose: () => v
         >
           Subir archivo
         </button>
+        <button
+          className={`import-tab ${tab === 'prompt' ? 'active' : ''}`}
+          role="tab"
+          aria-selected={tab === 'prompt'}
+          onClick={() => switchTab('prompt')}
+        >
+          Pedir a la IA
+        </button>
       </div>
 
-      {tab === 'text' ? (
+      {tab === 'text' && (
         <>
           <p className="modal-desc">
             Pega aquí el texto que copiaste de Claude y pulsa <strong>«Importar»</strong>. No te
@@ -137,11 +146,13 @@ export function ImportModal({ open, onClose }: { open: boolean; onClose: () => v
             onChange={(e) => setText(e.target.value)}
           />
         </>
-      ) : (
+      )}
+
+      {tab === 'file' && (
         <>
           <p className="modal-desc">
-            Pídele a Claude que te lo dé como <strong>archivo para descargar</strong>. Descárgalo y
-            arrástralo aquí (o pulsa para elegirlo).
+            Pídele a Claude o ChatGPT que te lo dé como <strong>archivo para descargar</strong>.
+            Descárgalo y arrástralo aquí (o pulsa para elegirlo).
           </p>
           <label
             className={`import-dropzone ${dragging ? 'dragging' : ''}`}
@@ -167,6 +178,22 @@ export function ImportModal({ open, onClose }: { open: boolean; onClose: () => v
             />
           </label>
         </>
+      )}
+
+      {tab === 'prompt' && (
+        <div className="import-prompt">
+          <p className="modal-desc">
+            ¿Aún no tienes el texto? Copia estas instrucciones, pégalas en Claude o ChatGPT, añade
+            tus artículos y te devolverá la edición lista para traer aquí.
+          </p>
+          <ol className="import-steps">
+            <li>Copia las instrucciones con el botón de abajo.</li>
+            <li>Pégalas en un chat de Claude o ChatGPT.</li>
+            <li>Debajo, pega los artículos del día.</li>
+            <li>Trae el resultado a «Pegar texto» o «Subir archivo».</li>
+          </ol>
+          <CopyPromptButton variant="primary" />
+        </div>
       )}
 
       {errors.length > 0 && (

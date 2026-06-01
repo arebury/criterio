@@ -62,6 +62,28 @@ archivo por turno y verifica que llegó contenido.)
 
 _Actualizar al final de cada sesión._
 
+- **2026-06-01 (cont. 2) — PWA, prompt para la IA y compartir**
+  - **PWA instalable + offline:** `vite-plugin-pwa` (manifest + service worker, `registerType:
+    autoUpdate`). `workbox.globPatterns` incluye `json` para precachear las ediciones de
+    `public/issues` y poder leerlas sin conexión. Meta `theme-color`/`apple-touch-icon` en
+    `index.html`. Botón **«Instalar Criterio»** en Ajustes (solo cuando el navegador lo permite;
+    hook `src/lib/useInstallPrompt.ts` que captura `beforeinstallprompt` a nivel de módulo).
+  - **Iconos:** generados con `sharp` instalado en modo `--no-save` (no está en `package.json`),
+    rasterizando `public/icon.svg` / `icon-maskable.svg` → `public/icon-{192,512}.png`,
+    `icon-maskable-512.png`, `apple-touch-icon.png` (PNG commiteados como assets). Si hay que
+    regenerarlos: `npm i sharp --no-save` y rasterizar de nuevo.
+  - **«Pedir a la IA»:** tercer tab en `ImportModal` con pasos + botón que copia un prompt
+    autocontenido (`src/lib/promptTemplate.ts`) para Claude/ChatGPT (embebe el contrato; el
+    lector solo pega sus artículos). También en el empty-state. Test unit del prompt.
+  - **Compartir la síntesis:** `ShareButton` en Síntesis (Web Share API en móvil, copia al
+    portapapeles en escritorio). Helper `src/lib/share.ts`; portapapeles unificado en
+    `src/lib/clipboard.ts` (refactor: `Debate` ya no duplica esa lógica). `notify()` expuesto en
+    el store para toasts.
+  - Estilado con criterio editorial (skills `impeccable` + `ui-ux-pro-max` como guía, sin AI
+    slop): iconos SVG, sin franjas de color ni degradados. Verificado por pantallazos.
+  - Verificado: `build` ✅, `lint` ✅, `format:check` ✅, `test` ✅, **e2e 7/7** ✅. **Pendiente:
+    desplegar.**
+
 - **2026-06-01 (cont.) — mejoras de accesibilidad y persistencia del debate**
   - **Bloque A (vista cansada):** el tamaño de letra «Grande/Enorme» ahora alcanza los
     diálogos y mensajes de error (`app.css`: nuevas reglas para `.modal-desc`, `.import-errors`,

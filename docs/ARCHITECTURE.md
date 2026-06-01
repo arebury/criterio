@@ -228,7 +228,9 @@ Reducir la fricción de meter el contenido del día, **sin scrapear contenido de
 - **Fuentes oficiales:** RSS/Atom y APIs públicas de medios, newsletters o feeds que el usuario
   ya tenga derecho a leer.
 - **Asistente de borrador:** una pantalla para pegar varias URLs o textos y formatearlos hacia
-  el contrato, en lugar de copiar/pegar el JSON a mano.
+  el contrato, en lugar de copiar/pegar el JSON a mano. _(Primer paso hecho: el importador
+  ofrece en «Pedir a la IA» un prompt autocontenido para Claude/ChatGPT que devuelve la edición
+  lista.)_
 - **Conector con el generador:** un punto de entrada estable para depositar la edición sin pasos
   manuales. Puede necesitar una función serverless mínima, que se evaluará solo cuando el ahorro
   lo justifique.
@@ -248,7 +250,10 @@ Reducir la fricción de meter el contenido del día, **sin scrapear contenido de
 
 ### Mejoras transversales
 
-- Persistir el progreso del debate por edición.
-- Atajos de teclado en el debate y la navegación.
-- Auditoría de accesibilidad continua (objetivo WCAG AA).
-- PWA instalable para uso offline.
+- ✅ Persistir el progreso del debate por edición (hecho 2026-06-01; `localStorage`
+  `criterio:debate:<fecha>`).
+- ✅ PWA instalable para uso offline (hecho 2026-06-01; `vite-plugin-pwa` con manifest +
+  service worker que precachea el shell y las ediciones `.json`).
+- Atajos de teclado en el debate y la navegación. _(Baja prioridad para el lector objetivo.)_
+- Auditoría de accesibilidad continua (objetivo WCAG AA) — en marcha (tamaño de letra que
+  alcanza diálogos, contraste, objetivos ≥44 px, `aria-live`).
