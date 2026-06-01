@@ -250,7 +250,7 @@ body.reading .synth-body p {
 .resume-num {
   font-family: var(--ui);
   font-size: 11px;
-  color: #8a8a8a;
+  color: #6b6b6b;
   font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -665,13 +665,18 @@ body.reading .synth-body p {
   font-size: 22px;
 }
 .modal-close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
   background: none;
   border: none;
   font-size: 18px;
   color: #6b6b6b;
   cursor: pointer;
   line-height: 1;
-  padding: 4px 8px;
+  padding: 0;
   border-radius: 6px;
 }
 .modal-close:hover {
@@ -898,6 +903,22 @@ body.text-enorme .option-btn {
 }
 body.text-enorme .correction-text {
   font-size: 18px;
+}
+/* …y también alcanza los diálogos, para que las instrucciones y los mensajes
+   de error sigan siendo legibles al tamaño que el lector haya elegido. */
+body.text-grande .modal-desc,
+body.text-grande .import-errors {
+  font-size: 15px;
+}
+body.text-grande .import-textarea {
+  font-size: 14px;
+}
+body.text-enorme .modal-desc,
+body.text-enorme .import-errors {
+  font-size: 17px;
+}
+body.text-enorme .import-textarea {
+  font-size: 16px;
 }
 
 /* ---------- Toast ---------- */

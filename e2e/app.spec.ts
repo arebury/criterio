@@ -40,6 +40,22 @@ test.describe('Criterio', () => {
     await expect(page.locator('.prompt-textarea')).toContainText('[CRITERIO · Debate socrático');
   });
 
+  test('debate: resumes progress after reload', async ({ page }) => {
+    await page.goto('/');
+    await page.getByRole('button', { name: 'Debate' }).click();
+
+    // Answer the first question and advance to the second.
+    await page.locator('.option-btn').first().click();
+    await page.getByRole('button', { name: 'Enviar respuesta' }).click();
+    await page.getByRole('button', { name: /Siguiente pregunta/ }).click();
+    await expect(page.locator('.debate-progress-label')).toContainText('Pregunta 2 de');
+
+    // Reload: progress is restored from localStorage instead of resetting to Q1.
+    await page.reload();
+    await page.getByRole('button', { name: 'Debate' }).click();
+    await expect(page.locator('.debate-progress-label')).toContainText('Pregunta 2 de');
+  });
+
   test('import modal rejects invalid JSON with a clear error', async ({ page }) => {
     await page.goto('/');
     await page.locator('nav').getByRole('button', { name: 'Importar' }).click();

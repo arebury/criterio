@@ -1,14 +1,18 @@
-import { useMemo, useState, type MouseEvent } from 'react';
+import { useEffect, useMemo, useState, type MouseEvent } from 'react';
 import type { Issue } from '../schema/issue';
 import { optionLetter } from '../lib/letters';
 import { buildDebateBundle, CLAUDE_NEW_CHAT_URL } from '../lib/debate';
+import { loadDebateProgress, saveDebateProgress } from '../lib/storage';
 import { CheckCircleIcon, ClipboardIcon } from './icons';
 
 export function Debate({ issue }: { issue: Issue }) {
-  const [currentQ, setCurrentQ] = useState(0);
-  const [selectedOpt, setSelectedOpt] = useState<number | null>(null);
-  const [submitted, setSubmitted] = useState(false);
-  const [answered, setAnswered] = useState(0);
+  // Resume where the reader left off — progress is persisted per edition so an
+  // elderly reader can work through the 8 questions across several sittings.
+  const saved = useMemo(() => loadDebateProgress(issue.date), [issue.date]);
+  const [currentQ, setCurrentQ] = useState(saved?.currentQ ?? 0);
+  const [selectedOpt, setSelectedOpt] = useState<number | null>(saved?.selectedOpt ?? null);
+  const [submitted, setSubmitted] = useState(saved?.submitted ?? false);
+  const [answered, setAnswered] = useState(saved?.answered ?? 0);
   const [copied, setCopied] = useState(false);
 
   const total = issue.questions.length;
@@ -22,6 +26,11 @@ export function Debate({ issue }: { issue: Issue }) {
         : null,
     [submitted, question, selectedOpt, issue, currentQ],
   );
+
+  // Persist progress on every change (cheap localStorage write).
+  useEffect(() => {
+    saveDebateProgress(issue.date, { currentQ, selectedOpt, submitted, answered });
+  }, [issue.date, currentQ, selectedOpt, submitted, answered]);
 
   const next = () => {
     setCurrentQ((q) => q + 1);
@@ -145,7 +154,10 @@ export function Debate({ issue }: { issue: Issue }) {
       })}
 
       {submitted && bundle && (
-        <div className={`correction-box visible ${bundle.isCorrect ? 'correct-ans' : 'wrong-ans'}`}>
+        <div
+          className={`correction-box visible ${bundle.isCorrect ? 'correct-ans' : 'wrong-ans'}`}
+          aria-live="polite"
+        >
           <div className={`correction-verdict ${bundle.isCorrect ? 'ok' : 'bad'}`}>
             {bundle.isCorrect
               ? '✓ Correcto'
@@ -172,7 +184,7 @@ export function Debate({ issue }: { issue: Issue }) {
               {copied
                 ? '✓ Copiado. Pégalo en un chat de Claude.'
                 : bundle.isCorrect
-                  ? 'Tensa tu acierto en un chat real.'
+                  ? 'Pon a prueba tu respuesta en un chat real.'
                   : 'Lleva tu error a debate: el prompt es más exigente.'}
             </span>
           </div>

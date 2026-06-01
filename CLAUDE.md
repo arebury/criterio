@@ -62,6 +62,27 @@ archivo por turno y verifica que llegó contenido.)
 
 _Actualizar al final de cada sesión._
 
+- **2026-06-01 (cont.) — mejoras de accesibilidad y persistencia del debate**
+  - **Bloque A (vista cansada):** el tamaño de letra «Grande/Enorme» ahora alcanza los
+    diálogos y mensajes de error (`app.css`: nuevas reglas para `.modal-desc`, `.import-errors`,
+    `.import-textarea`); `.resume-num` pasa de `#8a8a8a` a `#6b6b6b` (cumple WCAG AA, antes
+    ~3.45:1); el botón de cerrar modal («✕») ahora es un objetivo de ≥44×44 px; `aria-live` en
+    el veredicto del debate ([Debate.tsx](src/components/Debate.tsx)) y `role="alert"` en los
+    errores de import; lenguaje más llano («Tensa tu acierto» → «Pon a prueba tu respuesta»).
+  - **Bloque B:** el **progreso del debate se persiste por edición** en `localStorage`
+    (`criterio:debate:<fecha>`), así el lector retoma las 8 preguntas tras recargar/cerrar.
+    Helpers en `src/lib/storage.ts` (`load/save/clearDebateProgress`); se limpia al borrar la
+    edición. Test e2e de regresión añadido (`debate: resumes progress after reload`).
+  - **Bloque C:** verificado que `Summaries`/`Articles` recorren sus listas de forma
+    independiente, así que un desajuste de longitud entre `summaries` y `articles` **no rompe
+    nada** → se decidió **no** añadir validación que rechace la edición (sería peor para el
+    lector). Sin cambios de código.
+  - **Filtrado de un audit multiagente:** descartados falsos positivos (Toast ya anuncia con
+    `role="status"`; botones de opción ya tienen nombre accesible; contraste de errores ~9.5:1
+    estaba bien). Solo se aplicaron los hallazgos reales.
+  - Verificado: `build` ✅, `lint` ✅, `test` ✅, e2e ✅ (5/5). **Pendiente: desplegar** para
+    que llegue a producción.
+
 - **2026-06-01**
   - **Import con dos pestañas** (`ImportModal.tsx`): «Pegar texto» (como antes) y «Subir
     archivo», que acepta el `.json` descargable de ChatGPT (arrastrar o elegir). Ambas pasan

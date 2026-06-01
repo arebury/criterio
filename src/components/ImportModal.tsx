@@ -170,7 +170,7 @@ export function ImportModal({ open, onClose }: { open: boolean; onClose: () => v
       )}
 
       {errors.length > 0 && (
-        <div className="import-errors">
+        <div className="import-errors" role="alert">
           <strong>No se pudo importar:</strong>
           <ul>
             {errors.slice(0, 8).map((err, i) => (
