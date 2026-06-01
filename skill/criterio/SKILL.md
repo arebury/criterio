@@ -115,9 +115,12 @@ ningún archivo).
 ```
 
 **Reglas del contrato (no las rompas):**
-- **Escribe el JSON dentro del chat como bloque de código** (` ```json `). **Nunca** lo
-  entregues como archivo, documento descargable ni adjunto: el lector copia y pega el texto
-  del chat, y un adjunto solo pega su nombre («text.txt»), no su contenido.
+- **Entrégalo de una de estas dos formas, ambas válidas para importar en Criterio:**
+  (a) un **bloque de código** ` ```json ` en el chat (el lector pulsa «Copiar» y lo pega en la
+  pestaña «Pegar texto»); o (b) un **archivo descargable** `.json` (el lector lo sube en la
+  pestaña «Subir archivo»). Lo que NO sirve es un adjunto que solo muestre su nombre
+  («text.txt») sin contenido copiable: si el entorno empaqueta la respuesta como adjunto,
+  ofrece también el archivo `.json` descargable.
 - `date`: ISO `AAAA-MM-DD`. Es el identificador de la edición.
 - `synthesis`: array de párrafos (no un único string con saltos de línea).
 - `summaries`, `articles`: mismo orden y misma longitud (un resumen por artículo).
